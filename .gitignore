@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+*.db
+output/
+node_modules/
+Code Cubicle 6.0 Problem Statements.pdf
+IDEATION.md
