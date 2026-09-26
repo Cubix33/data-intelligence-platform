@@ -42,6 +42,10 @@
     color: #1a0f08; font-weight: 600; cursor: pointer; font-size: 14px; white-space: nowrap;
   }
   .prompt-bar button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .prompt-bar button.stop-mode {
+    background: var(--err);
+    color: #fff;
+  }
 
   .coverage-target-row {
     display: flex; gap: 10px; align-items: center; margin-bottom: 20px; font-size: 13px; color: var(--muted);
@@ -188,7 +192,7 @@
 <main>
   <div class="prompt-bar">
     <input id="prompt" placeholder="e.g. Companies that sponsored student hackathons in India in 2025, with tier and contact URL" />
-    <button id="runBtn" onclick="startRun()">Run</button>
+    <button id="runBtn" onclick="handleRunBtn()">Run</button>
   </div>
 
   <div class="coverage-target-row">
@@ -295,6 +299,41 @@ function fillRecipe(i) {
   document.getElementById("prompt").value = RECIPES[i];
 }
 
+// ── Run / Stop toggle ─────────────────────────────────────────────────────
+
+function handleRunBtn() {
+  const btn = document.getElementById("runBtn");
+  if (btn.classList.contains("stop-mode")) {
+    stopRun();
+  } else {
+    startRun();
+  }
+}
+
+function _setRunMode() {
+  const btn = document.getElementById("runBtn");
+  btn.textContent = "Run";
+  btn.classList.remove("stop-mode");
+  btn.disabled = false;
+  document.getElementById("prompt").disabled = false;
+}
+
+function _setStopMode() {
+  const btn = document.getElementById("runBtn");
+  btn.textContent = "Stop Searching";
+  btn.classList.add("stop-mode");
+  btn.disabled = false;
+  document.getElementById("prompt").disabled = true;
+}
+
+function _setLoadingMode(label) {
+  const btn = document.getElementById("runBtn");
+  btn.textContent = label;
+  btn.classList.remove("stop-mode");
+  btn.disabled = true;
+  document.getElementById("prompt").disabled = true;
+}
+
 // ── Start run ──────────────────────────────────────────────────────────────
 
 async function startRun() {
@@ -302,9 +341,7 @@ async function startRun() {
   if (!prompt) return;
   const targetCoverage = parseInt(document.getElementById("coverageTarget").value) / 100;
 
-  const btn = document.getElementById("runBtn");
-  btn.disabled = true;
-  btn.textContent = "Starting…";
+  _setLoadingMode("Starting…");
 
   if (eventSource) { eventSource.close(); eventSource = null; }
 
@@ -325,11 +362,25 @@ async function startRun() {
     document.getElementById("captureLog").innerHTML = "";
     _records = []; _fields = [];
 
+    _setStopMode();
     connectSSE(currentRunId);
   } catch (err) {
     alert("Could not start run: " + err.message + "\n\nIs the API running at " + API + "?");
-    btn.disabled = false;
-    btn.textContent = "Run";
+    _setRunMode();
+  }
+}
+
+// ── Stop run ───────────────────────────────────────────────────────────────
+
+async function stopRun() {
+  if (!currentRunId) return;
+  _setLoadingMode("Stopping…");
+  try {
+    await fetch(`${API}/runs/${currentRunId}`, { method: "DELETE" });
+    // Button resets to Run when the SSE status_change/done event arrives
+  } catch (err) {
+    // If the request fails just re-enable stop mode so the user can try again
+    _setStopMode();
   }
 }
 
@@ -348,6 +399,7 @@ function connectSSE(runId) {
     eventSource.close();
     eventSource = null;
     fetchAndRender(runId);
+    _setRunMode();
   };
 }
 
@@ -355,9 +407,8 @@ function handleEvent(ev, runId) {
   switch (ev.type) {
     case "status_change":
       setStatus(ev.status);
-      if (ev.status === "done" || ev.status === "failed") {
-        document.getElementById("runBtn").disabled = false;
-        document.getElementById("runBtn").textContent = "Run";
+      if (ev.status === "done" || ev.status === "failed" || ev.status === "cancelled") {
+        _setRunMode();
         fetchAndRender(runId);
       }
       break;
@@ -378,14 +429,12 @@ function handleEvent(ev, runId) {
     case "done":
       renderStats(ev.stats);
       fetchAndRender(runId);
-      document.getElementById("runBtn").disabled = false;
-      document.getElementById("runBtn").textContent = "Run";
+      _setRunMode();
       break;
 
     case "error":
       setStatus("failed — " + ev.message);
-      document.getElementById("runBtn").disabled = false;
-      document.getElementById("runBtn").textContent = "Run";
+      _setRunMode();
       break;
   }
 }

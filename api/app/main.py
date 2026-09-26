@@ -43,6 +43,25 @@ WEB_INDEX = Path(__file__).resolve().parents[2] / "web" / "index.html"
 _sse_queues: dict[str, list[asyncio.Queue]] = {}   # run_id -> list of subscriber queues
 _sse_lock = threading.Lock()
 
+# ---------------------------------------------------------------------------
+# Cancellation flags
+# A simple thread-safe set of run IDs that have been requested to cancel.
+# The pipeline loop checks this and exits early.
+# ---------------------------------------------------------------------------
+
+_cancelled_runs: set[str] = set()
+_cancelled_lock = threading.Lock()
+
+
+def is_run_cancelled(run_id: str) -> bool:
+    with _cancelled_lock:
+        return run_id in _cancelled_runs
+
+
+def _request_cancel(run_id: str) -> None:
+    with _cancelled_lock:
+        _cancelled_runs.add(run_id)
+
 
 def publish_event(run_id: str, event_type: str, data: dict) -> None:
     """Called from background pipeline thread to broadcast an SSE event."""
@@ -74,6 +93,7 @@ def _unsubscribe(run_id: str, q: asyncio.Queue) -> None:
 # without a circular import.
 from . import pipeline as _pipeline_mod  # noqa: E402
 _pipeline_mod._publish_event = publish_event  # type: ignore[attr-defined]
+_pipeline_mod._is_run_cancelled = is_run_cancelled  # type: ignore[attr-defined]
 
 
 # ---------------------------------------------------------------------------
@@ -109,6 +129,23 @@ def create_run(req: RunRequest):
     )
     thread.start()
     return {"id": run_id}
+
+
+@app.delete("/api/runs/{run_id}")
+def cancel_run(run_id: str):
+    """Request cancellation of an active run.
+
+    Sets a flag the pipeline loop checks on each capture iteration.
+    Returns immediately; the run status transitions to 'cancelled'
+    asynchronously once the pipeline sees the flag.
+    """
+    run = db.get_run(run_id)
+    if not run:
+        raise HTTPException(404, "run not found")
+    if run["status"] in ("done", "failed", "cancelled"):
+        return {"ok": True, "status": run["status"]}
+    _request_cancel(run_id)
+    return {"ok": True, "status": "cancelling"}
 
 
 @app.get("/api/runs")

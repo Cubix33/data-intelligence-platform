@@ -30,6 +30,11 @@ def _publish_event(run_id: str, event_type: str, data: dict) -> None:  # noqa: D
     pass
 
 
+def _is_run_cancelled(run_id: str) -> bool:  # noqa: D401
+    """Injected by main.py. Falls back to never-cancel for CLI usage."""
+    return False
+
+
 # ---------------------------------------------------------------------------
 # Async helper — run coroutines from a sync background thread safely
 # ---------------------------------------------------------------------------
@@ -155,6 +160,15 @@ def run_pipeline(run_id: str, prompt: str) -> None:
 
     # --- 2. Capture loop ---
     for _cap_iter in range(config.MAX_CAPTURES_PER_RUN):
+
+        # Check for user-requested cancellation before each capture
+        if _is_run_cancelled(run_id):
+            logger.info("run %s: cancellation requested — stopping", run_id)
+            stats["records_after_dedupe"] = len(db.list_records(run_id))
+            db.update_run(run_id, status="cancelled", stats=stats, finished_at=db.now())
+            _publish_event(run_id, "status_change", {"status": "cancelled"})
+            _publish_event(run_id, "done", {"stats": stats})
+            return
 
         combo = _next_capture_params(dataspec, used_combos)
         if combo is None:
