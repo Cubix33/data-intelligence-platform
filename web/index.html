@@ -17,23 +17,21 @@
     --ok: #4dd4c4;
     --warn: #f2c94c;
     --err: #ff6b6b;
+    --conflict: #e07b39;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); }
-  header {
-    padding: 28px 32px 16px;
-    border-bottom: 1px solid var(--border);
-  }
+
+  header { padding: 28px 32px 16px; border-bottom: 1px solid var(--border); }
   header h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.02em; }
   header h1 span { color: var(--accent); }
   header p { margin: 0; color: var(--muted); font-size: 14px; }
 
-  main { padding: 24px 32px 64px; max-width: 1200px; margin: 0 auto; }
+  main { padding: 24px 32px 64px; max-width: 1280px; margin: 0 auto; }
 
-  .prompt-bar {
-    display: flex; gap: 10px; margin-bottom: 20px;
-  }
+  /* ── Prompt bar ── */
+  .prompt-bar { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; }
   .prompt-bar input {
     flex: 1; padding: 13px 16px; border-radius: 10px; border: 1px solid var(--border);
     background: var(--panel); color: var(--text); font-size: 14px;
@@ -41,9 +39,16 @@
   .prompt-bar input:focus { outline: none; border-color: var(--accent); }
   .prompt-bar button {
     padding: 13px 22px; border-radius: 10px; border: none; background: var(--accent);
-    color: #1a0f08; font-weight: 600; cursor: pointer; font-size: 14px;
+    color: #1a0f08; font-weight: 600; cursor: pointer; font-size: 14px; white-space: nowrap;
   }
   .prompt-bar button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .coverage-target-row {
+    display: flex; gap: 10px; align-items: center; margin-bottom: 20px; font-size: 13px; color: var(--muted);
+  }
+  .coverage-target-row label { white-space: nowrap; }
+  .coverage-target-row input[type=range] { width: 120px; accent-color: var(--accent-2); }
+  .coverage-target-row span { color: var(--text); font-weight: 600; min-width: 36px; }
 
   .recipes { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
   .recipes button {
@@ -52,21 +57,49 @@
   }
   .recipes button:hover { color: var(--text); border-color: var(--accent-2); }
 
+  /* ── Status card ── */
   .status-card {
     background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
     padding: 16px 20px; margin-bottom: 20px; display: none;
   }
   .status-card.visible { display: block; }
   .status-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); flex-shrink: 0; }
   .dot.done { background: var(--ok); }
   .dot.failed { background: var(--err); }
   .status-row strong { color: var(--text); text-transform: capitalize; }
+
   .stats { display: flex; gap: 18px; margin-top: 10px; flex-wrap: wrap; }
   .stats div { font-size: 12px; color: var(--muted); }
   .stats b { color: var(--text); font-size: 15px; display: block; }
 
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  /* ── Coverage meter ── */
+  .coverage-section { margin-top: 14px; }
+  .coverage-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .coverage-label strong { color: var(--accent-2); font-size: 15px; }
+  .coverage-bar-outer {
+    height: 8px; background: var(--panel-2); border-radius: 4px; overflow: hidden;
+    position: relative;
+  }
+  .coverage-bar-inner {
+    height: 100%; background: var(--accent-2); border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+  .coverage-bar-ci {
+    position: absolute; top: 0; height: 100%; background: rgba(77,212,196,0.18); border-radius: 4px;
+    transition: left 0.4s, width 0.4s;
+  }
+  .coverage-note { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Capture log ── */
+  .capture-log {
+    margin-top: 10px; max-height: 56px; overflow-y: hidden; font-size: 11px; color: var(--muted);
+  }
+  .capture-log span { display: inline-block; padding: 2px 7px; margin: 2px; border-radius: 4px;
+    background: var(--panel-2); border: 1px solid var(--border); }
+
+  /* ── Main panel ── */
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
   .panel-head {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 18px; border-bottom: 1px solid var(--border);
@@ -80,19 +113,54 @@
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
   th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--panel-2); }
   td.cell { cursor: pointer; }
-  td.cell.unverified { color: var(--muted); font-style: italic; }
+  td.cell:hover { color: var(--accent-2); }
+
   .badge {
-    display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 999px;
-    margin-left: 6px; background: rgba(77,212,196,0.15); color: var(--ok);
+    display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 999px; margin-left: 6px;
   }
+  .badge-ok   { background: rgba(77,212,196,0.15); color: var(--ok); }
+  .badge-warn { background: rgba(242,201,76,0.15);  color: var(--warn); }
+  .badge-conflict { background: rgba(224,123,57,0.15); color: var(--conflict); }
 
   .empty { padding: 40px; text-align: center; color: var(--muted); font-size: 13px; }
 
+  /* ── Sources ledger ── */
+  .sources-list { padding: 8px 18px 18px; font-size: 12px; color: var(--muted); max-height: 160px; overflow-y: auto; }
+  .sources-list div { padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .src-ok     { color: var(--ok); }
+  .src-skip   { color: var(--warn); }
+  .src-fail   { color: var(--err); }
+
+  /* ── PPI audit panel ── */
+  .audit-panel { padding: 18px; }
+  .audit-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .audit-header h3 { margin: 0; font-size: 14px; }
+  .ppi-summary { font-size: 13px; color: var(--muted); }
+  .ppi-estimate { font-size: 24px; font-weight: 700; color: var(--accent-2); }
+  .ppi-ci { font-size: 12px; color: var(--muted); }
+  .audit-cells { display: flex; flex-direction: column; gap: 10px; }
+  .audit-cell {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; font-size: 13px;
+  }
+  .audit-cell .field-name { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .audit-cell .value { font-weight: 600; margin: 4px 0; }
+  .audit-cell .quote { font-size: 12px; color: var(--muted); border-left: 2px solid var(--border); padding-left: 8px; margin: 4px 0; }
+  .audit-cell .label-btns { display: flex; gap: 8px; margin-top: 8px; }
+  .audit-cell .label-btns button {
+    flex: 1; padding: 6px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--panel); color: var(--text); cursor: pointer; font-size: 12px;
+  }
+  .audit-cell .label-btns button.correct   { background: rgba(77,212,196,0.15); border-color: var(--ok);  color: var(--ok);  }
+  .audit-cell .label-btns button.incorrect { background: rgba(255,107,107,0.15); border-color: var(--err); color: var(--err); }
+
+  /* ── Provenance drawer ── */
   #drawer {
-    position: fixed; top: 0; right: -380px; width: 360px; height: 100%; background: var(--panel);
-    border-left: 1px solid var(--border); transition: right 0.2s ease; padding: 22px; overflow-y: auto;
+    position: fixed; top: 0; right: -420px; width: 400px; height: 100%; background: var(--panel);
+    border-left: 1px solid var(--border); transition: right 0.2s ease; padding: 22px; overflow-y: auto; z-index: 100;
   }
   #drawer.open { right: 0; }
   #drawer h3 { margin-top: 0; font-size: 15px; }
@@ -102,51 +170,107 @@
   }
   #drawer a { color: var(--accent-2); font-size: 12px; word-break: break-all; }
   #drawer .close { float: right; cursor: pointer; color: var(--muted); font-size: 18px; }
-
-  .sources-list { padding: 8px 18px 18px; font-size: 12px; color: var(--muted); max-height: 160px; overflow-y: auto; }
-  .sources-list div { padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .conflict-block { margin-top: 14px; }
+  .conflict-block h4 { font-size: 12px; color: var(--conflict); margin: 0 0 8px; }
+  .conflict-item { font-size: 12px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; }
+  .conflict-item a { color: var(--muted); }
+  .trust-bar { height: 4px; background: var(--panel-2); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+  .trust-fill { height: 100%; background: var(--accent-2); }
 </style>
 </head>
 <body>
 
 <header>
   <h1>Scout <span>/</span> AI Data Intelligence Platform</h1>
-  <p>Describe a dataset in plain English. Every value you get back is source-backed and traceable.</p>
+  <p>Describe a dataset in plain English. Every cell is source-backed, and Scout reports how complete the result is.</p>
 </header>
 
 <main>
   <div class="prompt-bar">
-    <input id="prompt" placeholder="e.g. Find companies that sponsored student hackathons in India in 2025, with sponsorship tier and contact URL" />
+    <input id="prompt" placeholder="e.g. Companies that sponsored student hackathons in India in 2025, with tier and contact URL" />
     <button id="runBtn" onclick="startRun()">Run</button>
   </div>
 
-  <div class="recipes">
-    <button onclick="fillRecipe(0)">Hackathon sponsors in India 2025</button>
-    <button onclick="fillRecipe(1)">Remote backend jobs at fintech startups</button>
-    <button onclick="fillRecipe(2)">D2C skincare brands in India</button>
+  <div class="coverage-target-row">
+    <label for="coverageTarget">Coverage target:</label>
+    <input type="range" id="coverageTarget" min="50" max="95" value="80" step="5"
+           oninput="document.getElementById('coverageVal').textContent = this.value + '%'" />
+    <span id="coverageVal">80%</span>
+    <span style="color:var(--muted); font-size:12px;">Scout keeps searching until it's probably found this fraction of what exists.</span>
   </div>
 
+  <div class="recipes">
+    <button onclick="fillRecipe(0)">Hackathon sponsors India 2025</button>
+    <button onclick="fillRecipe(1)">Remote backend jobs at fintech startups</button>
+    <button onclick="fillRecipe(2)">D2C skincare brands in India</button>
+    <button onclick="fillRecipe(3)">Open-source LLMs released 2025</button>
+  </div>
+
+  <!-- Status card with coverage meter -->
   <div class="status-card" id="statusCard">
     <div class="status-row">
       <span class="dot" id="statusDot"></span>
       <span>Status: <strong id="statusText">—</strong></span>
     </div>
     <div class="stats" id="statsRow"></div>
+
+    <!-- Coverage meter -->
+    <div class="coverage-section" id="coverageSection" style="display:none">
+      <div class="coverage-label">
+        <span>Coverage estimate (Chao2 lower bound)</span>
+        <strong id="coverageEst">—</strong>
+      </div>
+      <div class="coverage-bar-outer">
+        <div class="coverage-bar-ci" id="coverageCIBar"></div>
+        <div class="coverage-bar-inner" id="coverageBar" style="width:0%"></div>
+      </div>
+      <div class="coverage-note" id="coverageNote"></div>
+    </div>
+
+    <!-- Capture log -->
+    <div class="capture-log" id="captureLog"></div>
   </div>
 
+  <!-- Results table -->
   <div class="panel">
     <div class="panel-head">
       <h2 id="resultsTitle">Results</h2>
-      <a id="exportLink" href="#" target="_blank">Export CSV</a>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span id="legendBadges" style="font-size:11px; color:var(--muted)"></span>
+        <a id="exportLink" href="#" target="_blank">Export CSV</a>
+      </div>
     </div>
     <div id="tableWrap"><div class="empty">Run a prompt above to see results here.</div></div>
+
     <div class="panel-head" style="border-top:1px solid var(--border); border-bottom:none;">
       <h2>Source Ledger</h2>
     </div>
-    <div class="sources-list" id="sourcesList"></div>
+    <div class="sources-list" id="sourcesList"><div style="padding:8px 0; color:var(--muted)">No sources touched yet.</div></div>
+  </div>
+
+  <!-- PPI Accuracy Audit panel -->
+  <div class="panel" id="auditPanel" style="display:none">
+    <div class="panel-head">
+      <h2>Accuracy Audit</h2>
+      <button onclick="loadAuditSample()" style="background:var(--panel-2);border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px;">Load 10 cells</button>
+    </div>
+    <div class="audit-panel">
+      <div class="audit-header">
+        <div>
+          <div class="ppi-estimate" id="ppiEstimate">—</div>
+          <div class="ppi-ci" id="ppiCI">Label cells below to compute accuracy estimate</div>
+        </div>
+        <div class="ppi-summary">
+          <div>Cells scored: <b id="ppiN">0</b></div>
+          <div>Cells labelled: <b id="ppiLabelled">0</b></div>
+        </div>
+      </div>
+      <div class="audit-cells" id="auditCells"></div>
+    </div>
   </div>
 </main>
 
+<!-- Provenance drawer -->
 <div id="drawer">
   <span class="close" onclick="closeDrawer()">✕</span>
   <h3 id="drawerField"></h3>
@@ -156,38 +280,52 @@
 <script>
 const API = "http://localhost:8000/api";
 let currentRunId = null;
-let pollTimer = null;
+let eventSource  = null;
+let _records     = [];
+let _fields      = [];
 
 const RECIPES = [
   "Find companies that sponsored student hackathons in India in 2025. Include the sponsorship tier, their website, and a partnership/contact page.",
   "Find remote backend engineering jobs at fintech startups in India posted in the last month, with company name, role, seniority, and the job posting URL.",
   "Find D2C skincare brands based in India, with their website, product category, and Instagram handle.",
+  "Open-source large language models released in 2025, with parameter count, license, and the organization that released them.",
 ];
 
 function fillRecipe(i) {
   document.getElementById("prompt").value = RECIPES[i];
 }
 
+// ── Start run ──────────────────────────────────────────────────────────────
+
 async function startRun() {
   const prompt = document.getElementById("prompt").value.trim();
   if (!prompt) return;
+  const targetCoverage = parseInt(document.getElementById("coverageTarget").value) / 100;
 
   const btn = document.getElementById("runBtn");
   btn.disabled = true;
   btn.textContent = "Starting…";
 
+  if (eventSource) { eventSource.close(); eventSource = null; }
+
   try {
     const res = await fetch(`${API}/runs`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({ prompt, target_coverage: targetCoverage }),
     });
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
     currentRunId = data.id;
+
     document.getElementById("statusCard").classList.add("visible");
     document.getElementById("exportLink").href = `${API}/runs/${currentRunId}/export.csv`;
-    poll();
+    document.getElementById("auditPanel").style.display = "block";
+    document.getElementById("coverageSection").style.display = "none";
+    document.getElementById("captureLog").innerHTML = "";
+    _records = []; _fields = [];
+
+    connectSSE(currentRunId);
   } catch (err) {
     alert("Could not start run: " + err.message + "\n\nIs the API running at " + API + "?");
     btn.disabled = false;
@@ -195,91 +333,340 @@ async function startRun() {
   }
 }
 
-function poll() {
-  clearTimeout(pollTimer);
-  pollTimer = setTimeout(async () => {
-    const res = await fetch(`${API}/runs/${currentRunId}`);
-    const run = await res.json();
-    render(run);
-    if (run.status === "done" || run.status === "failed") {
+// ── SSE ────────────────────────────────────────────────────────────────────
+
+function connectSSE(runId) {
+  eventSource = new EventSource(`${API}/runs/${runId}/stream`);
+
+  eventSource.onmessage = function(e) {
+    const ev = JSON.parse(e.data);
+    handleEvent(ev, runId);
+  };
+
+  eventSource.onerror = function() {
+    // Server closed the connection (run done or error) — do a final poll
+    eventSource.close();
+    eventSource = null;
+    fetchAndRender(runId);
+  };
+}
+
+function handleEvent(ev, runId) {
+  switch (ev.type) {
+    case "status_change":
+      setStatus(ev.status);
+      if (ev.status === "done" || ev.status === "failed") {
+        document.getElementById("runBtn").disabled = false;
+        document.getElementById("runBtn").textContent = "Run";
+        fetchAndRender(runId);
+      }
+      break;
+
+    case "capture_start":
+      addCaptureTag(ev.engine, ev.query);
+      break;
+
+    case "coverage":
+      renderCoverage(ev);
+      break;
+
+    case "record_found":
+      // Refresh table incrementally on new records
+      fetchAndRender(runId);
+      break;
+
+    case "done":
+      renderStats(ev.stats);
+      fetchAndRender(runId);
       document.getElementById("runBtn").disabled = false;
       document.getElementById("runBtn").textContent = "Run";
-    } else {
-      poll();
-    }
-  }, 1200);
+      break;
+
+    case "error":
+      setStatus("failed — " + ev.message);
+      document.getElementById("runBtn").disabled = false;
+      document.getElementById("runBtn").textContent = "Run";
+      break;
+  }
 }
 
-function render(run) {
+function setStatus(status) {
   const dot = document.getElementById("statusDot");
-  dot.className = "dot " + (run.status === "done" ? "done" : run.status === "failed" ? "failed" : "");
-  document.getElementById("statusText").textContent = run.status + (run.error ? `: ${run.error}` : "");
+  dot.className = "dot " + (status === "done" ? "done" : status.startsWith("failed") ? "failed" : "");
+  document.getElementById("statusText").textContent = status;
+}
 
+function addCaptureTag(engine, query) {
+  const log = document.getElementById("captureLog");
+  const tag = document.createElement("span");
+  tag.textContent = `[${engine}] ${query.slice(0, 40)}`;
+  log.appendChild(tag);
+}
+
+function renderCoverage(ev) {
+  document.getElementById("coverageSection").style.display = "block";
+  const pct = Math.round((ev.coverage_lo || ev.coverage_est || 0) * 100);
+  const estPct = Math.round((ev.coverage_est || 0) * 100);
+
+  document.getElementById("coverageEst").textContent = `≥${pct}%`;
+  document.getElementById("coverageBar").style.width = pct + "%";
+  document.getElementById("coverageNote").textContent =
+    `S̃ = ${ev.s_hat} estimated total · ${ev.s_obs} found · T = ${ev.T} captures`;
+
+  // CI shading on the bar
+  const ciLo = Math.round((ev.coverage_lo || 0) * 100);
+  const ciHi = Math.min(100, Math.round(((ev.s_obs / Math.max(ev.s_hat * 0.85, 1)) || 0) * 100));
+  document.getElementById("coverageCIBar").style.left  = ciLo + "%";
+  document.getElementById("coverageCIBar").style.width = Math.max(0, ciHi - ciLo) + "%";
+}
+
+function renderStats(stats) {
+  if (!stats) return;
   const statsRow = document.getElementById("statsRow");
   statsRow.innerHTML = "";
-  if (run.stats) {
-    for (const [key, val] of Object.entries(run.stats)) {
-      statsRow.innerHTML += `<div><b>${val}</b>${key.replaceAll("_", " ")}</div>`;
+  const labels = {
+    records_after_dedupe: "entities",
+    pages_fetched: "pages fetched",
+    captures_run: "captures",
+    coverage_estimate: "coverage",
+    urls_skipped_compliance: "skipped (compliance)",
+  };
+  for (const [key, label] of Object.entries(labels)) {
+    if (stats[key] !== undefined && stats[key] !== null) {
+      const val = key === "coverage_estimate" ? Math.round(stats[key] * 100) + "%" : stats[key];
+      statsRow.innerHTML += `<div><b>${val}</b>${label}</div>`;
     }
   }
-
-  const fields = (run.data_spec && run.data_spec.fields) || [];
-  document.getElementById("resultsTitle").textContent =
-    run.data_spec ? `Results — ${run.data_spec.entity}` : "Results";
-
-  const wrap = document.getElementById("tableWrap");
-  const records = run.records || [];
-  if (!fields.length) {
-    wrap.innerHTML = `<div class="empty">Planning the workflow…</div>`;
-  } else if (!records.length) {
-    wrap.innerHTML = `<div class="empty">No records yet — still collecting.</div>`;
-  } else {
-    let html = "<table><thead><tr>";
-    for (const f of fields) html += `<th>${f.name}</th>`;
-    html += "<th>confidence</th></tr></thead><tbody>";
-    records.forEach((rec, ri) => {
-      html += "<tr>";
-      for (const f of fields) {
-        const val = rec.fields[f.name];
-        const prov = rec.provenance[f.name] || {};
-        const cls = prov.verified ? "cell" : "cell unverified";
-        html += `<td class="${cls}" onclick='openDrawer(${ri}, "${f.name}")'>${val ?? "—"}${
-          prov.corroborated_by ? '<span class="badge">✓✓</span>' : ""
-        }</td>`;
-      }
-      html += `<td>${rec.confidence}</td></tr>`;
-    });
-    html += "</tbody></table>";
-    wrap.innerHTML = html;
-  }
-  window._records = records;
-
-  const sourcesList = document.getElementById("sourcesList");
-  const sources = run.sources || [];
-  sourcesList.innerHTML = sources.length
-    ? sources.map(s => `<div>[${s.status}] ${s.url} ${s.reason ? "— " + s.reason : ""} ${s.records_found ? `(+${s.records_found})` : ""}</div>`).join("")
-    : `<div>No sources touched yet.</div>`;
 }
 
-function openDrawer(recordIndex, fieldName) {
-  const rec = window._records[recordIndex];
+// ── Full render after fetch ────────────────────────────────────────────────
+
+async function fetchAndRender(runId) {
+  try {
+    const res = await fetch(`${API}/runs/${runId}`);
+    const run = await res.json();
+    renderRun(run);
+  } catch (e) { /* silently ignore mid-run poll failures */ }
+}
+
+function renderRun(run) {
+  setStatus(run.status + (run.error ? `: ${run.error}` : ""));
+  renderStats(run.stats || {});
+
+  if (run.stats && run.stats.coverage_estimate != null) {
+    renderCoverage({
+      coverage_est: run.stats.coverage_estimate,
+      coverage_lo:  run.stats.coverage_ci_low,
+      s_hat: run.stats.s_hat || "?",
+      s_obs: (run.records || []).length,
+      T: run.stats.captures_run || 0,
+    });
+  }
+
+  _fields  = (run.data_spec && run.data_spec.fields) || [];
+  _records = run.records || [];
+
+  document.getElementById("resultsTitle").textContent =
+    run.data_spec ? `Results — ${run.data_spec.entity} (${_records.length})` : "Results";
+
+  renderTable(_fields, _records);
+  renderSources(run.sources || []);
+}
+
+function renderTable(fields, records) {
+  const wrap = document.getElementById("tableWrap");
+  if (!fields.length) {
+    wrap.innerHTML = `<div class="empty">Planning the workflow…</div>`;
+    return;
+  }
+  if (!records.length) {
+    wrap.innerHTML = `<div class="empty">No records yet — still collecting.</div>`;
+    return;
+  }
+
+  let conflictCount = 0, unverifiedCount = 0;
+
+  let html = "<table><thead><tr>";
+  for (const f of fields) html += `<th>${f.name}</th>`;
+  html += "<th>sourced</th></tr></thead><tbody>";
+
+  records.forEach((rec, ri) => {
+    html += "<tr>";
+    for (const f of fields) {
+      const val  = rec.fields[f.name];
+      const prov = rec.provenance[f.name] || {};
+      const hasConflict = prov.conflicts && prov.conflicts.length > 0;
+      const verified    = prov.verified;
+      const corroborated = !!prov.corroborated_by;
+
+      if (hasConflict) conflictCount++;
+      if (!verified && val != null) unverifiedCount++;
+
+      let badges = "";
+      if (corroborated) badges += `<span class="badge badge-ok">✓✓</span>`;
+      if (hasConflict)  badges += `<span class="badge badge-conflict" title="Sources disagree — click to see">⚡</span>`;
+      if (!verified && val != null) badges += `<span class="badge badge-warn" title="Quote found but value not in quote">?</span>`;
+
+      html += `<td class="cell" onclick="openDrawer(${ri}, '${f.name}')">${val != null ? escHtml(String(val)) : '<span style="color:var(--muted)">—</span>'}${badges}</td>`;
+    }
+    html += `<td>${rec.fields_sourced != null ? Math.round(rec.fields_sourced * 100) + "%" : (rec.confidence != null ? Math.round(rec.confidence * 100) + "%" : "—")}</td></tr>`;
+  });
+  html += "</tbody></table>";
+  wrap.innerHTML = html;
+
+  const leg = document.getElementById("legendBadges");
+  leg.innerHTML = [
+    conflictCount  ? `<span class="badge badge-conflict">⚡ ${conflictCount} conflicts</span>` : "",
+    unverifiedCount ? `<span class="badge badge-warn">? ${unverifiedCount} unverified</span>` : "",
+  ].filter(Boolean).join(" ");
+}
+
+function renderSources(sources) {
+  const el = document.getElementById("sourcesList");
+  if (!sources.length) {
+    el.innerHTML = `<div style="padding:8px 0; color:var(--muted)">No sources touched yet.</div>`;
+    return;
+  }
+  el.innerHTML = sources.map(s => {
+    const cls = s.status === "ok" ? "src-ok" : s.status === "skipped" ? "src-skip" : "src-fail";
+    return `<div><span class="${cls}">[${s.status}]</span> ${escHtml(s.url)}${s.reason ? " — " + escHtml(s.reason) : ""}${s.records_found ? ` <b>(+${s.records_found})</b>` : ""}</div>`;
+  }).join("");
+}
+
+// ── Drawer ─────────────────────────────────────────────────────────────────
+
+function openDrawer(ri, fieldName) {
+  const rec  = _records[ri];
   const prov = rec.provenance[fieldName] || {};
-  document.getElementById("drawerField").textContent = fieldName;
-  document.getElementById("drawerBody").innerHTML = `
-    <div class="quote">${prov.evidence ? '"' + prov.evidence + '"' : "No verified evidence — value was dropped."}</div>
-    <div>Source: <a href="${prov.url || "#"}" target="_blank">${prov.url || "—"}</a></div>
-    <div style="margin-top:8px; color: var(--muted); font-size:12px;">
-      ${prov.verified ? "✓ Verified against the fetched page" : "⚠ Not verified"}
-      ${prov.corroborated_by ? `<br/>Also confirmed by: ${prov.corroborated_by}` : ""}
+  const val  = rec.fields[fieldName];
+  const conflicts = prov.conflicts || [];
+
+  document.getElementById("drawerField").textContent =
+    `${fieldName} · ${rec.entity_key || ""}`;
+
+  let html = `
+    <div style="margin-bottom:10px">
+      <span style="font-size:18px; font-weight:700">${val != null ? escHtml(String(val)) : "—"}</span>
+      ${prov.corroborated_by ? `<span class="badge badge-ok">✓✓ Corroborated</span>` : ""}
+      ${conflicts.length > 0 ? `<span class="badge badge-conflict">⚡ Conflict</span>` : ""}
+    </div>
+    <div class="quote">${prov.evidence ? '"' + escHtml(prov.evidence) + '"' : "No verified evidence."}</div>
+    <div style="margin-top:6px">
+      Source: <a href="${prov.url || '#'}" target="_blank">${escHtml(prov.url || "—")}</a>
+    </div>
+    <div style="margin-top:6px; font-size:12px; color:var(--muted)">
+      ${prov.verified ? "✓ Evidence verified" : "⚠ Not verified (value not found in quote)"}
+      ${prov.corroborated_by ? `<br/>Also confirmed by: <a href="${prov.corroborated_by}" target="_blank">${escHtml(prov.corroborated_by)}</a>` : ""}
+      ${prov.kbt_prob != null ? `<br/>KBT probability: ${Math.round(prov.kbt_prob * 100)}%` : ""}
     </div>
   `;
+
+  if (conflicts.length > 0) {
+    html += `<div class="conflict-block">
+      <h4>⚡ ${conflicts.length} conflicting source${conflicts.length > 1 ? "s" : ""}</h4>`;
+    for (const c of conflicts) {
+      html += `<div class="conflict-item">
+        Value: <b>${escHtml(String(c.value))}</b><br/>
+        Source: <a href="${escHtml(c.url || '')}" target="_blank">${escHtml(c.url || "—")}</a>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  document.getElementById("drawerBody").innerHTML = html;
   document.getElementById("drawer").classList.add("open");
 }
 
 function closeDrawer() {
   document.getElementById("drawer").classList.remove("open");
 }
-</script>
 
+// ── PPI Audit ──────────────────────────────────────────────────────────────
+
+async function loadAuditSample() {
+  if (!currentRunId) return;
+  try {
+    const res = await fetch(`${API}/runs/${currentRunId}/claims?limit=10`);
+    const claims = await res.json();
+    renderAuditCells(claims.slice(0, 10));
+    refreshPPI();
+  } catch (e) {
+    document.getElementById("auditCells").innerHTML =
+      `<div style="color:var(--muted);font-size:13px">No claims available yet — run a prompt first.</div>`;
+  }
+}
+
+function renderAuditCells(claims) {
+  const container = document.getElementById("auditCells");
+  container.innerHTML = "";
+  claims.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "audit-cell";
+    div.id = `audit-${c.id}`;
+    div.innerHTML = `
+      <div class="field-name">${escHtml(c.field)}</div>
+      <div class="value">${escHtml(c.value_raw || "—")}</div>
+      <div class="quote">${escHtml(c.quote ? '"' + c.quote.slice(0, 120) + '"' : "No quote")}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">
+        Verifier: ${c.support_score != null ? Math.round(c.support_score * 100) + "%" : "not scored yet"}
+        · <a href="${escHtml(c.source_url || '')}" target="_blank" style="color:var(--muted)">source</a>
+      </div>
+      <div class="label-btns">
+        <button onclick="submitLabel('${c.id}', true,  this)">✓ Correct</button>
+        <button onclick="submitLabel('${c.id}', false, this)">✗ Wrong</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+async function submitLabel(claimId, correct, btn) {
+  try {
+    await fetch(`${API}/labels`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ claim_id: claimId, correct }),
+    });
+    // Highlight the chosen button
+    const cell = btn.closest(".audit-cell");
+    cell.querySelectorAll(".label-btns button").forEach(b => b.className = "");
+    btn.className = correct ? "correct" : "incorrect";
+    // Refresh PPI estimate
+    refreshPPI();
+  } catch (e) { console.error(e); }
+}
+
+async function refreshPPI() {
+  if (!currentRunId) return;
+  try {
+    const res = await fetch(`${API}/runs/${currentRunId}/accuracy`);
+    const data = await res.json();
+    const ppiEl = document.getElementById("ppiEstimate");
+    const ciEl  = document.getElementById("ppiCI");
+    const nEl   = document.getElementById("ppiN");
+    const labEl = document.getElementById("ppiLabelled");
+
+    if (data.theta_hat != null) {
+      ppiEl.textContent = Math.round(data.theta_hat * 100) + "% accurate";
+      ciEl.textContent  = `95% CI: ${Math.round(data.ci_low * 100)}% – ${Math.round(data.ci_high * 100)}%`;
+    } else {
+      ppiEl.textContent = "—";
+      ciEl.textContent  = "Label cells below to compute accuracy estimate";
+    }
+    nEl.textContent   = data.n_cells    || 0;
+    labEl.textContent = data.n_labeled  || 0;
+  } catch (e) { /* ignore */ }
+}
+
+// ── Utilities ──────────────────────────────────────────────────────────────
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+</script>
 </body>
 </html>

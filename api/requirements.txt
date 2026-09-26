@@ -1,8 +1,37 @@
+# Core API
 groq>=0.11.0
-ddgs>=9.0.0
 fastapi>=0.115
 uvicorn[standard]>=0.32
-httpx>=0.27
-beautifulsoup4>=4.12
-python-dotenv>=1.0
 pydantic>=2.7
+python-dotenv>=1.0
+
+# HTTP client (sync + async)
+httpx>=0.27
+
+# HTML parsing
+beautifulsoup4>=4.12
+
+# Search
+ddgs>=9.0.0                   # DuckDuckGo (free, no API key)
+
+# Async support
+anyio>=4.0                    # async compatibility layer used by FastAPI / httpx
+
+# Pillar B: NLI verifier
+sentence-transformers>=3.0.0  # cross-encoder/nli-deberta-v3-large
+torch>=2.1.0                  # PyTorch backend (CPU or CUDA)
+# transformers and tokenizers pulled in by sentence-transformers
+
+# Pillar D: entity resolution embeddings (Phase 2 / GPU)
+# Uncomment when GPU is available:
+# sentence-transformers[torch]  # bge-m3 / e5 for blocking
+
+# Evaluation / scoring
+numpy>=1.26                   # used by verifier, ppi, score.py
+# matplotlib>=3.8             # for calibration plots — uncomment to enable
+# Playwright for JS fallback (optional):
+# playwright>=1.44            # run: playwright install chromium
+
+# Dev / testing
+pytest>=8.0
+pytest-asyncio>=0.23

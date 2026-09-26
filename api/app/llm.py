@@ -114,7 +114,84 @@ def discover_urls(dataspec: "DataSpec") -> list[dict]:
     return [{"url": u, "title": t} for u, t in seen.items()]
 
 
-# ---------------------------------------------------------------------------
+def discover_urls_for_query(dataspec: "DataSpec", query: str, engine: str = "ddg") -> list[dict]:
+    """Run a single search query on the specified engine and return candidate URLs.
+
+    Supported engines:
+      - "ddg"     : DuckDuckGo (always available, no key needed)
+      - "brave"   : Brave Search API (requires BRAVE_API_KEY in config)
+      - "searxng" : Self-hosted SearXNG instance (requires SEARXNG_URL in config)
+
+    Falls back to DuckDuckGo if the requested engine isn't configured.
+    """
+    engine = engine.lower()
+    seen: dict[str, str] = {}
+
+    if engine == "brave" and config.BRAVE_API_KEY:
+        _discover_brave(query, seen)
+    elif engine == "searxng" and config.SEARXNG_URL:
+        _discover_searxng(query, seen)
+    else:
+        if engine not in ("ddg",):
+            logger.debug("engine %r not configured, falling back to ddg", engine)
+        _discover_ddg(query, seen)
+
+    return [{"url": u, "title": t} for u, t in seen.items()]
+
+
+def _discover_ddg(query: str, seen: dict) -> None:
+    try:
+        results = DDGS().text(query, max_results=config.SEARCH_RESULTS_PER_QUERY)
+        for r in results:
+            url = r.get("href") or r.get("url")
+            if url and url not in seen:
+                seen[url] = r.get("title") or url
+    except Exception as exc:
+        logger.warning("DuckDuckGo search failed for %r: %s", query, exc)
+
+
+def _discover_brave(query: str, seen: dict) -> None:
+    """Brave Search API (https://api.search.brave.com/res/v1/web/search)."""
+    try:
+        import httpx as _httpx
+        resp = _httpx.get(
+            "https://api.search.brave.com/res/v1/web/search",
+            params={"q": query, "count": config.SEARCH_RESULTS_PER_QUERY},
+            headers={
+                "Accept": "application/json",
+                "X-Subscription-Token": config.BRAVE_API_KEY,
+            },
+            timeout=10.0,
+        )
+        resp.raise_for_status()
+        for r in resp.json().get("web", {}).get("results", []):
+            url = r.get("url")
+            if url and url not in seen:
+                seen[url] = r.get("title") or url
+    except Exception as exc:
+        logger.warning("Brave search failed for %r: %s", query, exc)
+        _discover_ddg(query, seen)   # graceful fallback
+
+
+def _discover_searxng(query: str, seen: dict) -> None:
+    """SearXNG JSON API."""
+    try:
+        import httpx as _httpx
+        resp = _httpx.get(
+            config.SEARXNG_URL.rstrip("/") + "/search",
+            params={"q": query, "format": "json",
+                    "engines": "google,bing,duckduckgo",
+                    "count": config.SEARCH_RESULTS_PER_QUERY},
+            timeout=10.0,
+        )
+        resp.raise_for_status()
+        for r in resp.json().get("results", []):
+            url = r.get("url")
+            if url and url not in seen:
+                seen[url] = r.get("title") or url
+    except Exception as exc:
+        logger.warning("SearXNG search failed for %r: %s", query, exc)
+        _discover_ddg(query, seen)# ---------------------------------------------------------------------------
 # 3. Per-page extraction, with mandatory evidence quotes
 # ---------------------------------------------------------------------------
 

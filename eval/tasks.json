@@ -1,0 +1,32 @@
+[
+  {
+    "id": "hackathon_sponsors_india_2025",
+    "prompt": "Companies that sponsored student hackathons in India in 2025, with sponsorship tier and a contact URL",
+    "gold_file": "eval/gold/hackathon_sponsors_india_2025.json",
+    "target_coverage": 0.80
+  },
+  {
+    "id": "ai_startups_bangalore_2025",
+    "prompt": "AI startups founded in Bangalore between 2023 and 2025, with their funding amount, founder names, and website",
+    "gold_file": "eval/gold/ai_startups_bangalore_2025.json",
+    "target_coverage": 0.75
+  },
+  {
+    "id": "open_source_llm_models_2025",
+    "prompt": "Open-source large language models released in 2025, with parameter count, license, and the organization that released them",
+    "gold_file": "eval/gold/open_source_llm_models_2025.json",
+    "target_coverage": 0.85
+  },
+  {
+    "id": "devfolio_hackathons_2025",
+    "prompt": "Hackathons listed on Devfolio in India in 2025, with prize pool, dates, and organizer",
+    "gold_file": "eval/gold/devfolio_hackathons_2025.json",
+    "target_coverage": 0.80
+  },
+  {
+    "id": "python_web_frameworks_2025",
+    "prompt": "Python web frameworks with more than 1000 GitHub stars as of 2025, with star count, license, and latest version",
+    "gold_file": "eval/gold/python_web_frameworks_2025.json",
+    "target_coverage": 0.90
+  }
+]
