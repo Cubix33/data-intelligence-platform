@@ -21,6 +21,8 @@ from urllib.parse import urlparse
 from . import compliance, config, db, fetcher, llm
 from .coverage import chao2, bootstrap_ci, marginal_yield
 from .entity_resolution import resolve_entity_key
+from . import verifier as verifier_mod
+from . import truth as truth_mod
 
 logger = logging.getLogger("scout.pipeline")
 
@@ -153,21 +155,33 @@ def run_pipeline(run_id: str, prompt: str) -> None:
         "coverage_estimate": None,
         "coverage_ci_low": None,
         "coverage_ci_high": None,
+        "s_hat": None,
     }
 
     db.update_run(run_id, status="fetching")
     _publish_event(run_id, "status_change", {"status": "fetching"})
 
+    def _stop_if_cancelled() -> bool:
+        """Return True (after writing final state) if the user requested cancellation.
+
+        Checked both between captures and between URLs within a capture — a capture
+        can involve many pages, each running a synchronous CPU verifier pass per
+        claim, so checking only once per capture left "Stop Searching" unresponsive
+        for minutes on a large page.
+        """
+        if not _is_run_cancelled(run_id):
+            return False
+        logger.info("run %s: cancellation requested — stopping", run_id)
+        stats["records_after_dedupe"] = len(db.list_records(run_id))
+        db.update_run(run_id, status="cancelled", stats=stats, finished_at=db.now())
+        _publish_event(run_id, "status_change", {"status": "cancelled"})
+        _publish_event(run_id, "done", {"stats": stats})
+        return True
+
     # --- 2. Capture loop ---
     for _cap_iter in range(config.MAX_CAPTURES_PER_RUN):
 
-        # Check for user-requested cancellation before each capture
-        if _is_run_cancelled(run_id):
-            logger.info("run %s: cancellation requested — stopping", run_id)
-            stats["records_after_dedupe"] = len(db.list_records(run_id))
-            db.update_run(run_id, status="cancelled", stats=stats, finished_at=db.now())
-            _publish_event(run_id, "status_change", {"status": "cancelled"})
-            _publish_event(run_id, "done", {"stats": stats})
+        if _stop_if_cancelled():
             return
 
         combo = _next_capture_params(dataspec, used_combos)
@@ -195,6 +209,9 @@ def run_pipeline(run_id: str, prompt: str) -> None:
         new_in_capture = 0
 
         for candidate in candidates:
+            if _stop_if_cancelled():
+                return
+
             url = candidate["url"]
             domain = urlparse(url).netloc
 
@@ -282,11 +299,24 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                         "fields_sourced": fields_sourced,
                     })
 
-                    # Write claims (audit layer)
+                    # Write claims (audit layer) — score value-support (pillar B) inline
                     for field in dataspec.fields:
                         v   = fields.get(field.name)
                         ev  = provenance[field.name].get("evidence")
                         if v is not None or ev is not None:
+                            support_score = None
+                            if ev is not None and v is not None:
+                                try:
+                                    support_score = verifier_mod.score_support(
+                                        entity=str(primary_value),
+                                        field_name=field.name,
+                                        field_description=field.description,
+                                        value=str(v),
+                                        quote=ev,
+                                    )
+                                except Exception as exc:  # noqa: BLE001
+                                    logger.debug("verifier scoring failed for %s.%s: %s",
+                                                 entity_key, field.name, exc)
                             db.insert_claim(
                                 run_id=run_id,
                                 entity_id=entity_key,
@@ -295,7 +325,7 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                                 value_norm=_norm_value(v, field_types.get(field.name, "string")),
                                 source_url=url,
                                 quote=ev,
-                                support_score=None,
+                                support_score=support_score,
                                 capture_id=capture_id,
                                 extractor=f"llm:{config.MODEL_EXTRACT}",
                             )
@@ -320,6 +350,7 @@ def run_pipeline(run_id: str, prompt: str) -> None:
             stats["coverage_estimate"] = round(coverage_est, 4)
             stats["coverage_ci_low"]   = round(coverage_lo,  4)
             stats["coverage_ci_high"]  = round(min(1.0, s_obs / max(ci_lo, 1)), 4)
+            stats["s_hat"]             = round(s_hat, 1)
             db.update_run(run_id, stats=stats)
 
             logger.info(
@@ -347,7 +378,15 @@ def run_pipeline(run_id: str, prompt: str) -> None:
         else:
             db.update_run(run_id, stats=stats)
 
-    # --- 3. Finish ---
+    # --- 3. Resolve conflicts (pillar C — Knowledge-Based Trust) ---
+    try:
+        resolved = truth_mod.resolve_run_conflicts(run_id)
+        stats["conflicts_resolved"] = sum(resolved.values())
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("run %s: conflict resolution failed: %s", run_id, exc)
+        stats["conflicts_resolved"] = 0
+
+    # --- 4. Finish ---
     stats["records_after_dedupe"] = len(db.list_records(run_id))
     db.update_run(run_id, status="done", stats=stats, finished_at=db.now())
     _publish_event(run_id, "done", {"stats": stats})

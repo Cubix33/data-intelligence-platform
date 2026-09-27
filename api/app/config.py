@@ -7,6 +7,11 @@ load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
+# GROQ_API_KEY may hold a comma-separated list of keys (free-tier accounts hit
+# tight tokens-per-minute limits fast). llm.py rotates through these on 429s
+# instead of relying on the SDK's slow built-in backoff.
+GROQ_API_KEYS = [k.strip() for k in (GROQ_API_KEY or "").split(",") if k.strip()]
+
 # ---------------------------------------------------------------------------
 # LLM models
 # ---------------------------------------------------------------------------

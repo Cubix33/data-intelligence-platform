@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import itertools
 import json
 import logging
+import threading
+import time
 from typing import TYPE_CHECKING, Any
 
 import groq
@@ -16,32 +19,98 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("scout.llm")
 
-_client: groq.Groq | None = None
+# ---------------------------------------------------------------------------
+# Groq client pool with key rotation
+#
+# GROQ_API_KEY may be a comma-separated list. Free-tier keys hit tight
+# tokens-per-minute limits fast; the SDK's own retry backs off for up to
+# 30s+ per call, which can stall a run for minutes and makes cancellation
+# unresponsive. Instead we keep one lightweight client per key (max_retries=0,
+# so 429s raise immediately) and round-robin past any key that is currently
+# rate-limited.
+# ---------------------------------------------------------------------------
+
+_clients: list[groq.Groq] = []
+_client_cycle = None
+_lock = threading.Lock()
+_cooldowns: dict[int, float] = {}  # client index -> unix time it's usable again
+
+
+def _init_clients() -> None:
+    global _clients, _client_cycle
+    keys = config.GROQ_API_KEYS or ([config.GROQ_API_KEY] if config.GROQ_API_KEY else [])
+    if not keys:
+        raise RuntimeError("No GROQ_API_KEY configured (set it in .env)")
+    _clients = [groq.Groq(api_key=k, max_retries=0) for k in keys]
+    _client_cycle = itertools.cycle(range(len(_clients)))
+    logger.info("llm: initialised %d Groq client(s) for key rotation", len(_clients))
 
 
 def client() -> groq.Groq:
-    global _client
-    if _client is None:
-        _client = groq.Groq(api_key=config.GROQ_API_KEY)
-    return _client
+    """Return a single client (legacy callers). Prefer _chat_json for rotation."""
+    with _lock:
+        if not _clients:
+            _init_clients()
+        return _clients[0]
 
 
 def _chat_json(model: str, system: str, user: str, schema: dict, schema_name: str, max_tokens: int = 4000) -> Any:
-    """One structured-output chat call, returning parsed JSON."""
-    response = client().chat.completions.create(
-        model=model,
-        temperature=0,
-        max_tokens=max_tokens,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
-        response_format={
-            "type": "json_schema",
-            "json_schema": {"name": schema_name, "schema": schema},
-        },
-    )
-    return json.loads(response.choices[0].message.content)
+    """One structured-output chat call, returning parsed JSON.
+
+    Rotates across all configured Groq keys on rate-limit (429) errors before
+    falling back to a short sleep, so one key running dry doesn't stall the
+    whole capture loop (and, in turn, doesn't block a run's cancel button).
+    """
+    with _lock:
+        if not _clients:
+            _init_clients()
+        n = len(_clients)
+
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+    response_format = {
+        "type": "json_schema",
+        "json_schema": {"name": schema_name, "schema": schema},
+    }
+
+    last_exc: Exception | None = None
+    for _attempt in range(n * 2):  # two full passes over the key pool
+        with _lock:
+            idx = next(_client_cycle)
+            ready_at = _cooldowns.get(idx, 0.0)
+        now = time.monotonic()
+        if ready_at > now and n > 1:
+            continue  # skip a key still in cooldown while others are available
+
+        try:
+            response = _clients[idx].chat.completions.create(
+                model=model, temperature=0, max_tokens=max_tokens,
+                messages=messages, response_format=response_format,
+            )
+            return json.loads(response.choices[0].message.content)
+        except groq.RateLimitError as exc:
+            last_exc = exc
+            # Cool this key down; Groq's error usually names a retry-after in
+            # its message, but we don't parse it — a flat 15s keeps this simple.
+            with _lock:
+                _cooldowns[idx] = time.monotonic() + 15.0
+            logger.info("llm: key #%d rate-limited, rotating (%s)", idx, exc)
+            continue
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            logger.warning("llm: call failed on key #%d: %s", idx, exc)
+            continue
+
+    if all(_cooldowns.get(i, 0.0) > time.monotonic() for i in range(n)):
+        # Every key is cooling down — wait out the shortest one rather than
+        # raising immediately, so a single tight loop doesn't burn the whole pool.
+        wait = max(0.5, min(_cooldowns.values()) - time.monotonic())
+        logger.info("llm: all %d key(s) rate-limited, waiting %.1fs", n, wait)
+        time.sleep(min(wait, 15.0))
+
+    raise last_exc or RuntimeError("Groq call failed with no configured keys")
 
 
 # ---------------------------------------------------------------------------

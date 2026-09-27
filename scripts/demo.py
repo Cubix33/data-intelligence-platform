@@ -57,7 +57,7 @@ def main() -> None:
             str(record["fields"].get(name, "") or "")[: widths[i]].ljust(widths[i])
             for i, name in enumerate(field_names)
         ]
-        print(" | ".join(cells) + f"  (confidence {record['confidence']})")
+        print(" | ".join(cells) + f"  (sourced {record['fields_sourced']})")
 
     if not records:
         print("(no records found — try a broader prompt, or check the source log below)")
@@ -71,9 +71,9 @@ def main() -> None:
     csv_path = out_dir / f"scout_{run_id}.csv"
     with csv_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(field_names + ["confidence"])
+        writer.writerow(field_names + ["fields_sourced"])
         for record in records:
-            writer.writerow([record["fields"].get(name, "") for name in field_names] + [record["confidence"]])
+            writer.writerow([record["fields"].get(name, "") for name in field_names] + [record["fields_sourced"]])
     print(f"\nSaved: {csv_path}")
 
 

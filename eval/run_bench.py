@@ -149,6 +149,7 @@ def run_task(task: dict, use_cache: bool = False) -> dict:
               f"(no gold file)")
 
     # Write result
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS_DIR / f"{task['id']}_{run_id}.json"
     out_path.write_text(json.dumps(result, indent=2, default=str))
     print(f"Result written to {out_path}")
