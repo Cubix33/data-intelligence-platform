@@ -8,5 +8,6 @@ output/
 eval/results/
 *.log
 node_modules/
+.playwright-mcp/
 Code Cubicle 6.0 Problem Statements.pdf
 IDEATION.md

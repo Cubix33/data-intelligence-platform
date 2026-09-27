@@ -23,6 +23,7 @@ from .coverage import chao2, bootstrap_ci, marginal_yield
 from .entity_resolution import resolve_entity_key
 from . import verifier as verifier_mod
 from . import truth as truth_mod
+from . import jev as jev_mod
 
 logger = logging.getLogger("scout.pipeline")
 
@@ -156,6 +157,9 @@ def run_pipeline(run_id: str, prompt: str) -> None:
         "coverage_ci_low": None,
         "coverage_ci_high": None,
         "s_hat": None,
+        "jev_chunks_gated": 0,
+        "jev_chunks_total": 0,
+        "jev_records_dropped": 0,
     }
 
     db.update_run(run_id, status="fetching")
@@ -243,6 +247,24 @@ def run_pipeline(run_id: str, prompt: str) -> None:
             new_here = 0
 
             for chunk_text in chunks:
+                # --- J1: Jev page relevance gate (before spending a Groq call) ---
+                stats["jev_chunks_total"] += 1
+                if config.SCOUT_JEV_ENABLED:
+                    try:
+                        noul = jev_mod.page_gate(
+                            wanted_entity=dataspec.entity,
+                            wanted_filters=dataspec.filters,
+                            page_url=url,
+                            page_text=chunk_text,
+                        )
+                        if noul < config.JEV_PAGE_GATE:
+                            stats["jev_chunks_gated"] += 1
+                            db.log_source(run_id, url, domain, "skipped",
+                                          f"jev page gate ({noul:.2f})", capture_id=capture_id)
+                            continue
+                    except jev_mod.JevUnavailable as exc:
+                        logger.debug("jev page_gate unavailable, extracting anyway: %s", exc)
+
                 # --- Extract ---
                 try:
                     records = llm.extract_records(dataspec, url, chunk_text)
@@ -250,6 +272,13 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                     logger.warning("extraction failed for %s: %s", url, exc)
                     continue
 
+                if not records:
+                    continue
+
+                # --- Build fields/provenance for every record in this chunk first,
+                # so J3 (filter check) and J2 (claim support) can run as one
+                # batched Jev call per chunk instead of per-record/per-claim.
+                built: list[dict] = []
                 for record in records:
                     evidence = record.get("evidence", {})
                     fields: dict = {}
@@ -283,7 +312,118 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                     if not primary_value:
                         continue
 
-                    entity_key    = resolve_entity_key(str(primary_value))
+                    built.append({
+                        "primary_value": primary_value,
+                        "fields": fields,
+                        "provenance": provenance,
+                    })
+
+                if not built:
+                    continue
+
+                # --- J3: Jev filter check, batched across every record in this chunk ---
+                if config.SCOUT_JEV_ENABLED and dataspec.filters:
+                    jev_records = [
+                        {**b["fields"], "evidence": chunk_text[:1500]} for b in built
+                    ]
+                    try:
+                        scores = jev_mod.filter_check(jev_records, dataspec.filters)
+                        keep: list[dict] = []
+                        for b, row in zip(built, scores):
+                            if row and min(row) < config.JEV_FILTER_DROP:
+                                stats["jev_records_dropped"] += 1
+                                continue
+                            b_uncertain = any(config.JEV_FILTER_DROP <= s < 0.5 for s in row)
+                            # Every provenance value must stay a per-field dict (main.py's
+                            # export_csv and truth.py's resolve_run_conflicts both iterate
+                            # provenance.values() assuming that) — so filter scores are
+                            # attached to the primary field's provenance, not top-level.
+                            b["provenance"][primary_field]["jev_filters"] = dict(zip(dataspec.filters, row))
+                            b["filter_uncertain"] = b_uncertain
+                            keep.append(b)
+                        built = keep
+                    except jev_mod.JevUnavailable as exc:
+                        logger.debug("jev filter_check unavailable, skipping: %s", exc)
+
+                if not built:
+                    continue
+
+                # --- J2: Jev/DeBERTa claim support, batched across the chunk's claims ---
+                claim_plan: list[tuple[dict, str, str | None]] = []  # (built_rec, field_name, ev)
+                for b in built:
+                    for field in dataspec.fields:
+                        v  = b["fields"].get(field.name)
+                        ev = b["provenance"][field.name].get("evidence")
+                        if v is not None or ev is not None:
+                            claim_plan.append((b, field.name, ev))
+
+                support_scores: list[float | None] = [None] * len(claim_plan)
+                scoreable = [
+                    (i, b, fname, ev) for i, (b, fname, ev) in enumerate(claim_plan)
+                    if ev is not None and b["fields"].get(fname) is not None
+                ]
+                if scoreable:
+                    # Jev needs a field_description per claim; DeBERTa's batch fn takes
+                    # one shared field_description, so only mix same-field claims there.
+                    if config.SCOUT_VERIFIER == "jev":
+                        field_desc = {f.name: f.description for f in dataspec.fields}
+                        try:
+                            scores = jev_mod.claim_support_batch([
+                                {
+                                    "entity": str(b["primary_value"]),
+                                    "field": fname,
+                                    "field_description": field_desc.get(fname, fname),
+                                    "value": str(b["fields"][fname]),
+                                    "quote": ev,
+                                }
+                                for _, b, fname, ev in scoreable
+                            ])
+                        except jev_mod.JevUnavailable as exc:
+                            logger.debug("jev claim_support unavailable, falling back: %s", exc)
+                            scores = None
+                        if scores is not None:
+                            for (i, *_), s in zip(scoreable, scores):
+                                support_scores[i] = s
+                    if all(support_scores[i] is None for i, *_ in scoreable):
+                        # Jev disabled/unavailable — fall back to per-field DeBERTa batches
+                        by_field: dict[str, list[tuple[int, dict, str]]] = {}
+                        for i, b, fname, ev in scoreable:
+                            by_field.setdefault(fname, []).append((i, b, ev))
+                        for fname, items in by_field.items():
+                            field_description = next(f.description for f in dataspec.fields if f.name == fname)
+                            claims_batch = [{"value_raw": b["fields"][fname], "quote": ev} for i, b, ev in items]
+                            try:
+                                scores = verifier_mod.score_claims_batch(
+                                    claims_batch, entity_name="", field_description=field_description,
+                                )
+                            except Exception as exc:  # noqa: BLE001
+                                logger.debug("deberta batch scoring failed for %s: %s", fname, exc)
+                                scores = [0.5] * len(items)
+                            for (i, _b, _ev), s in zip(items, scores):
+                                support_scores[i] = s
+
+                for idx, (b, fname, ev) in enumerate(claim_plan):
+                    v = b["fields"].get(fname)
+                    db.insert_claim(
+                        run_id=run_id,
+                        entity_id=resolve_entity_key(str(b["primary_value"])),
+                        field=fname,
+                        value_raw=str(v) if v is not None else None,
+                        value_norm=_norm_value(v, field_types.get(fname, "string")),
+                        source_url=url,
+                        quote=ev,
+                        support_score=support_scores[idx],
+                        capture_id=capture_id,
+                        extractor=f"llm:{config.MODEL_EXTRACT}",
+                    )
+
+                # --- Upsert records now that filtering + scoring is done ---
+                for b in built:
+                    primary_value = b["primary_value"]
+                    fields = b["fields"]
+                    provenance = b["provenance"]
+                    entity_key = resolve_entity_key(str(primary_value))
+                    verified_count = sum(1 for f in dataspec.fields if provenance[f.name]["verified"])
                     fields_sourced = round(verified_count / max(len(dataspec.fields), 1), 2)
 
                     is_new = db.upsert_record(run_id, entity_key, fields,
@@ -297,38 +437,8 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                         "entity_key":    entity_key,
                         "is_new":        is_new,
                         "fields_sourced": fields_sourced,
+                        "filter_uncertain": b.get("filter_uncertain", False),
                     })
-
-                    # Write claims (audit layer) — score value-support (pillar B) inline
-                    for field in dataspec.fields:
-                        v   = fields.get(field.name)
-                        ev  = provenance[field.name].get("evidence")
-                        if v is not None or ev is not None:
-                            support_score = None
-                            if ev is not None and v is not None:
-                                try:
-                                    support_score = verifier_mod.score_support(
-                                        entity=str(primary_value),
-                                        field_name=field.name,
-                                        field_description=field.description,
-                                        value=str(v),
-                                        quote=ev,
-                                    )
-                                except Exception as exc:  # noqa: BLE001
-                                    logger.debug("verifier scoring failed for %s.%s: %s",
-                                                 entity_key, field.name, exc)
-                            db.insert_claim(
-                                run_id=run_id,
-                                entity_id=entity_key,
-                                field=field.name,
-                                value_raw=str(v) if v is not None else None,
-                                value_norm=_norm_value(v, field_types.get(field.name, "string")),
-                                source_url=url,
-                                quote=ev,
-                                support_score=support_score,
-                                capture_id=capture_id,
-                                extractor=f"llm:{config.MODEL_EXTRACT}",
-                            )
 
                     # Update Chao2 capture history
                     capture_history.setdefault(entity_key, set()).add(capture_id)

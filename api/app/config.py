@@ -102,3 +102,34 @@ VERIFIER_THRESHOLD = float(os.getenv("SCOUT_VERIFIER_THRESHOLD", "0.5"))
 
 # Set to "false" to disable GPU-based verification (e.g. on machines without CUDA).
 VERIFIER_ENABLED = os.getenv("SCOUT_VERIFIER_ENABLED", "true").lower() == "true"
+
+# ---------------------------------------------------------------------------
+# Jev (TypeSafe AI System One) — decision layer
+# ---------------------------------------------------------------------------
+
+JEV_API_KEY = os.getenv("JEV_API_KEY") or os.getenv("TYPESAFE_API_KEY")
+JEV_MODEL = os.getenv("JEV_MODEL") or os.getenv("TYPESAFE_DEFAULT_MODEL", "jev-latest")
+JEV_TIMEOUT_S = float(os.getenv("JEV_TIMEOUT_MS", "8000")) / 1000 if os.getenv("JEV_TIMEOUT_MS") else float(os.getenv("SCOUT_JEV_TIMEOUT_S", "8"))
+
+# Master switch — if false (or no API key), every Jev gate is a no-op and the
+# pipeline runs exactly as it did before Jev existed. A run never fails
+# because Jev is down: each caller catches JevUnavailable and falls back.
+_JEV_ENABLED_FLAG = os.getenv("JEV_ENABLED", os.getenv("SCOUT_JEV_ENABLED", "true")).lower() == "true"
+SCOUT_JEV_ENABLED = _JEV_ENABLED_FLAG and bool(JEV_API_KEY)
+
+# J1: page relevance gate. noul < this -> skip the chunk before Groq extraction.
+JEV_PAGE_GATE = float(os.getenv("SCOUT_JEV_PAGE_GATE", "0.35"))
+
+# J2: which verifier backs claim support scoring — "jev" (batched, fast) or
+# "deberta" (the original per-claim NLI cross-encoder).
+SCOUT_VERIFIER = os.getenv("SCOUT_VERIFIER", "jev" if SCOUT_JEV_ENABLED else "deberta")
+
+# J2 batch size — claims per page sent to Jev in one call.
+JEV_CLAIM_BATCH_SIZE = int(os.getenv("SCOUT_JEV_CLAIM_BATCH_SIZE", "16"))
+
+# J3: filter check thresholds. noul < DROP -> record is discarded outright;
+# between DROP and 0.5 the record is kept but flagged filter_uncertain.
+JEV_FILTER_DROP = float(os.getenv("SCOUT_JEV_FILTER_DROP", "0.2"))
+
+# J4: same-entity merge threshold for grey-zone name pairs.
+JEV_SAME_ENTITY = float(os.getenv("SCOUT_JEV_SAME_ENTITY", "0.8"))

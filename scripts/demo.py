@@ -14,6 +14,9 @@ import time
 import uuid
 from pathlib import Path
 
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")  # Windows console defaults to cp1252
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "api"))
 
 from app import db  # noqa: E402

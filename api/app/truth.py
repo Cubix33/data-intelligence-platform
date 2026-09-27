@@ -190,6 +190,8 @@ def resolve_run_conflicts(run_id: str) -> dict[str, int]:
         fields      = rec["fields"]
 
         for field_name, prov in provenance.items():
+            if field_name.startswith("_") or not isinstance(prov, dict):
+                continue  # metadata keys (e.g. "_filters" from the J3 Jev gate), not a field
             conflicts = prov.get("conflicts")
             if not conflicts:
                 continue
