@@ -12,9 +12,9 @@ It also tells you how complete the result is, using statistics borrowed from eco
 
 Most AI scraping demos answer "what did you find?" Scout answers two harder questions:
 
-| Question | How Scout answers it |
-|---|---|
-| **Can I trust this cell?** | Every field value must come with a verbatim quote found on the source page. Values without a matching quote are dropped. A separate judge model (Jev) scores whether the quote really supports the value — it never generates text, so it can't hallucinate. |
+| Question                           | How Scout answers it                                                                                                                                                                                                                                                                |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Can I trust this cell?**   | Every field value must come with a verbatim quote found on the source page. Values without a matching quote are dropped. A separate judge model (Jev) scores whether the quote really supports the value — it never generates text, so it can't hallucinate.                       |
 | **Have I found everything?** | A Chao2 species-richness estimator — the same method ecologists use to estimate how many species exist in a forest from repeat sightings — estimates the total population of matching entities and keeps searching until its lower-bound confidence interval reaches your target. |
 
 Three techniques make this concrete:
@@ -34,11 +34,11 @@ Scout uses two AI systems for two different jobs, and they never swap roles:
 
 The separation matters: the model that could hallucinate a value is always checked by one that can't. Jev runs three checks (J1–J3) during each pipeline run:
 
-| Check | Where | What it does |
-|---|---|---|
-| **J1 — Page gate** | Before extraction | Scores whether the page chunk actually names any relevant entity. Chunks scoring below 0.35 are skipped, saving Groq API calls. |
-| **J2 — Claim support** | After extraction | Scores a whole batch of claims in one call: does this quote actually support this value? Replaces the old per-claim DeBERTa call, which was ~10× slower and got list formatting wrong (scoring `"Gokul Rajaram\nAmit Singhal"` vs `"Gokul Rajaram, Amit Singhal"` as 0.02). |
-| **J3 — Filter check** | After extraction | Checks every record against your prompt's filters (e.g. "seed funding", "2024", "Indian edtech"). Records that clearly fail are dropped; borderline ones are kept with a `filter_uncertain` badge. |
+| Check                         | Where             | What it does                                                                                                                                                                                                                                                                    |
+| ----------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **J1 — Page gate**     | Before extraction | Scores whether the page chunk actually names any relevant entity. Chunks scoring below 0.35 are skipped, saving Groq API calls.                                                                                                                                                 |
+| **J2 — Claim support** | After extraction  | Scores a whole batch of claims in one call: does this quote actually support this value? Replaces the old per-claim DeBERTa call, which was ~10× slower and got list formatting wrong (scoring`"Gokul Rajaram\nAmit Singhal"` vs `"Gokul Rajaram, Amit Singhal"` as 0.02). |
+| **J3 — Filter check**  | After extraction  | Checks every record against your prompt's filters (e.g. "seed funding", "2024", "Indian edtech"). Records that clearly fail are dropped; borderline ones are kept with a`filter_uncertain` badge.                                                                             |
 
 If Jev is unavailable, J1 lets every page through, J2 falls back to DeBERTa, and J3 is skipped. **A run never fails because Jev is down.**
 
@@ -177,6 +177,7 @@ python scripts/demo.py "Find companies that sponsored student hackathons in Indi
 ```
 
 This prints:
+
 - The parsed `DataSpec` (entity, fields, filters, queries)
 - A live table that fills in as records are found
 - The Source Ledger (including any Jev page-gate skips and robots.txt blocks)
@@ -194,6 +195,7 @@ uvicorn app.main:app --reload --port 8000
 Open `http://127.0.0.1:8000/` in a browser. The API serves the dashboard from `web/index.html`.
 
 **Dashboard features:**
+
 - Prompt bar with coverage-target slider (50%–95%)
 - Example prompts to get started quickly
 - Live status updates and coverage bar over SSE (no polling)
@@ -276,20 +278,20 @@ data-intelligence-platform/
 
 ## Environment variables reference
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `GROQ_API_KEY` | ✅ | — | Groq API key for LLM calls |
-| `JEV_API_KEY` | — | — | TypeSafe AI key; enables J1/J2/J3 |
-| `JEV_ENABLED` | — | `true` | Set to `false` to force DeBERTa fallback even with a key |
-| `JEV_MODEL` | — | `jev-latest` | Jev model name |
-| `JEV_TIMEOUT_MS` | — | `5000` | Per-call timeout for Jev requests |
-| `SCOUT_MODEL_INTENT` | — | `llama-3.3-70b-versatile` | Model for intent parsing |
-| `SCOUT_MODEL_EXTRACT` | — | `llama-3.1-8b-instant` | Model for record extraction |
-| `SCOUT_SEARCH_RESULTS` | — | `8` | Search results per query |
-| `SCOUT_MAX_URLS` | — | `20` | Max URLs to fetch per run |
-| `SCOUT_MAX_PAGE_CHARS` | — | `9000` | Max characters per page chunk |
-| `SCOUT_DB_PATH` | — | `./scout.db` | SQLite database location |
-| `SCOUT_VERIFIER` | — | `jev` | `jev` or `deberta` — which claim verifier to use |
+| Variable                 | Required | Default                     | Description                                               |
+| ------------------------ | -------- | --------------------------- | --------------------------------------------------------- |
+| `GROQ_API_KEY`         | ✅       | —                          | Groq API key for LLM calls                                |
+| `JEV_API_KEY`          | —       | —                          | TypeSafe AI key; enables J1/J2/J3                         |
+| `JEV_ENABLED`          | —       | `true`                    | Set to`false` to force DeBERTa fallback even with a key |
+| `JEV_MODEL`            | —       | `jev-latest`              | Jev model name                                            |
+| `JEV_TIMEOUT_MS`       | —       | `5000`                    | Per-call timeout for Jev requests                         |
+| `SCOUT_MODEL_INTENT`   | —       | `llama-3.3-70b-versatile` | Groq model for intent parsing                             |
+| `SCOUT_MODEL_EXTRACT`  | —       | `llama-3.1-8b-instant`    | Groq model for record extraction                          |
+| `SCOUT_SEARCH_RESULTS` | —       | `8`                       | Search results per query                                  |
+| `SCOUT_MAX_URLS`       | —       | `20`                      | Max URLs to fetch per run                                 |
+| `SCOUT_MAX_PAGE_CHARS` | —       | `9000`                    | Max characters per page chunk                             |
+| `SCOUT_DB_PATH`        | —       | `./scout.db`              | SQLite database location                                  |
+| `SCOUT_VERIFIER`       | —       | `jev`                     | `jev` or `deberta` — which claim verifier to use     |
 
 ---
 
@@ -297,17 +299,17 @@ data-intelligence-platform/
 
 The FastAPI server exposes these endpoints:
 
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/runs` | Start a new run. Body: `{"prompt": "...", "target_coverage": 0.8}` |
-| `GET` | `/api/runs/{id}` | Get the current state of a run (records, sources, stats) |
-| `DELETE` | `/api/runs/{id}` | Cancel a running run |
-| `GET` | `/api/runs/{id}/stream` | SSE stream of live events: `status_change`, `capture_start`, `coverage`, `record_found`, `done`, `error` |
-| `GET` | `/api/runs/{id}/export.csv` | Download results as CSV |
-| `GET` | `/api/runs/{id}/claims` | List claims for the accuracy audit |
-| `POST` | `/api/labels` | Submit a human label for a claim |
-| `GET` | `/api/runs/{id}/accuracy` | Get the current PPI accuracy estimate |
-| `GET` | `/` | Serves the dashboard (`web/index.html`) |
+| Method     | Path                          | Description                                                                                                         |
+| ---------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `POST`   | `/api/runs`                 | Start a new run. Body:`{"prompt": "...", "target_coverage": 0.8}`                                                 |
+| `GET`    | `/api/runs/{id}`            | Get the current state of a run (records, sources, stats)                                                            |
+| `DELETE` | `/api/runs/{id}`            | Cancel a running run                                                                                                |
+| `GET`    | `/api/runs/{id}/stream`     | SSE stream of live events:`status_change`, `capture_start`, `coverage`, `record_found`, `done`, `error` |
+| `GET`    | `/api/runs/{id}/export.csv` | Download results as CSV                                                                                             |
+| `GET`    | `/api/runs/{id}/claims`     | List claims for the accuracy audit                                                                                  |
+| `POST`   | `/api/labels`               | Submit a human label for a claim                                                                                    |
+| `GET`    | `/api/runs/{id}/accuracy`   | Get the current PPI accuracy estimate                                                                               |
+| `GET`    | `/`                         | Serves the dashboard (`web/index.html`)                                                                           |
 
 ---
 
