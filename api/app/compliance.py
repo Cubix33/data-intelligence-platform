@@ -17,17 +17,47 @@ from . import config
 
 logger = logging.getLogger("scout.compliance")
 
-DENYLIST = {"linkedin.com", "www.linkedin.com", "facebook.com", "instagram.com"}
+DENYLIST = {
+    # Login-walled social/professional networks
+    "linkedin.com", "www.linkedin.com", "in.linkedin.com",
+    "facebook.com", "instagram.com", "twitter.com", "x.com",
+    # Job boards that block crawlers via robots.txt or require login
+    "glassdoor.com", "glassdoor.co.in",
+    "wellfound.com",
+    "startup.jobs",
+    "remoterocketship.com",
+    "indeed.com",
+    "naukri.com",
+    "internshala.com",
+}
+
+
+class _FailOpenRobotParser(urllib.robotparser.RobotFileParser):
+    """RobotFileParser that fails open on 401/403.
+
+    The stdlib default sets disallow_all=True when robots.txt returns 401/403,
+    treating an inaccessible robots.txt as a full crawl ban. We treat it as
+    unknown and allow the fetch — the site chose not to serve a robots.txt.
+    """
+
+    def error_code(self, code: int) -> None:  # type: ignore[override]
+        if code in (401, 403):
+            self.allow_all = True   # fail open
+        elif code >= 400:
+            self.allow_all = True
+        else:
+            super().error_code(code)  # type: ignore[misc]
 
 
 @functools.lru_cache(maxsize=256)
-def _parser_for(domain: str, scheme: str) -> urllib.robotparser.RobotFileParser:
-    rp = urllib.robotparser.RobotFileParser()
+def _parser_for(domain: str, scheme: str) -> _FailOpenRobotParser:
+    rp = _FailOpenRobotParser()
     rp.set_url(f"{scheme}://{domain}/robots.txt")
     try:
         rp.read()
     except Exception:  # noqa: BLE001 - robots.txt fetch is best-effort
-        logger.info("could not read robots.txt for %s", domain)
+        logger.info("could not read robots.txt for %s, failing open", domain)
+        rp.allow_all = True
     return rp
 
 

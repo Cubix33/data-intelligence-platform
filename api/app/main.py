@@ -92,6 +92,7 @@ def _unsubscribe(run_id: str, q: asyncio.Queue) -> None:
 # Inject publish_event into the pipeline module so it can emit SSE events
 # without a circular import.
 from . import pipeline as _pipeline_mod  # noqa: E402
+from . import llm as _llm_mod  # noqa: E402
 _pipeline_mod._publish_event = publish_event  # type: ignore[attr-defined]
 _pipeline_mod._is_run_cancelled = is_run_cancelled  # type: ignore[attr-defined]
 
@@ -122,6 +123,7 @@ def create_run(req: RunRequest):
         raise HTTPException(400, "prompt must not be empty")
     run_id = uuid.uuid4().hex[:12]
     db.create_run(run_id, req.prompt.strip())
+    _llm_mod.clear_cancel()
     thread = threading.Thread(
         target=run_pipeline,
         args=(run_id, req.prompt.strip()),
@@ -145,6 +147,7 @@ def cancel_run(run_id: str):
     if run["status"] in ("done", "failed", "cancelled"):
         return {"ok": True, "status": run["status"]}
     _request_cancel(run_id)
+    _llm_mod.request_cancel()
     return {"ok": True, "status": "cancelling"}
 
 

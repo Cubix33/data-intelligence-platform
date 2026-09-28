@@ -34,6 +34,17 @@ _clients: list[groq.Groq] = []
 _client_cycle = None
 _lock = threading.Lock()
 _cooldowns: dict[int, float] = {}  # client index -> unix time it's usable again
+_cancel_event = threading.Event()  # set by pipeline to interrupt rate-limit sleeps
+
+
+def request_cancel() -> None:
+    """Signal that the current run is cancelled — wakes any sleeping key-rotation wait."""
+    _cancel_event.set()
+
+
+def clear_cancel() -> None:
+    """Clear the cancel signal at the start of a new run."""
+    _cancel_event.clear()
 
 
 def _init_clients() -> None:
@@ -108,7 +119,7 @@ def _chat_json(model: str, system: str, user: str, schema: dict, schema_name: st
         # raising immediately, so a single tight loop doesn't burn the whole pool.
         wait = max(0.5, min(_cooldowns.values()) - time.monotonic())
         logger.info("llm: all %d key(s) rate-limited, waiting %.1fs", n, wait)
-        time.sleep(min(wait, 15.0))
+        _cancel_event.wait(timeout=min(wait, 15.0))
 
     raise last_exc or RuntimeError("Groq call failed with no configured keys")
 
@@ -121,7 +132,12 @@ INTENT_SYSTEM = """You turn a plain-English data request into a structured data 
 Design a small set of columns (5-8) that best capture what the user asked for; always make the
 first field a primary identifying field (a name or title an entity is known by). Write 3-6 distinct,
 high-signal web search queries that would surface pages listing or describing these entities. Keep
-field names snake_case. Prefer fields that are actually likely to be stated on public web pages."""
+field names snake_case. Prefer fields that are actually likely to be stated on public web pages.
+
+IMPORTANT — search query strategy: avoid job boards (LinkedIn, Glassdoor, Indeed, Wellfound,
+Naukri, Internshala) and login-walled sites — they block crawlers. Instead write queries that
+target open, crawlable sources: company career pages (site:company.com/careers), GitHub profiles,
+tech blogs, news articles, directories, conference speaker lists, funding announcements, etc."""
 
 # Groq structured outputs don't support minItems/maxItems — pydantic enforces those instead.
 _INTENT_SCHEMA = {

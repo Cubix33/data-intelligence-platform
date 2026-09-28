@@ -243,6 +243,9 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                 stats["pages_failed"] += 1
                 continue
 
+            if _stop_if_cancelled():
+                return
+
             stats["pages_fetched"] += 1
             new_here = 0
 
@@ -272,6 +275,9 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                     logger.warning("extraction failed for %s: %s", url, exc)
                     continue
 
+                if _stop_if_cancelled():
+                    return
+
                 if not records:
                     continue
 
@@ -289,13 +295,14 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                         value   = record.get(field.name)
                         ev_text = evidence.get(field.name)
 
-                        # Both checks must pass (day-1 fix)
                         quote_on_page = _verify_evidence(ev_text, chunk_text)
                         value_in_ev   = _value_in_quote(value, ev_text)
                         verified      = quote_on_page and value_in_ev
 
-                        if not verified and value is not None:
-                            value = None   # drop unverifiable value
+                        # Keep all extracted values regardless of verification;
+                        # unverified fields are flagged in the provenance drawer.
+                        # Nulling secondary fields (e.g. URL) was dropping values
+                        # that live in HTML attributes, not visible text.
 
                         if verified:
                             verified_count += 1
