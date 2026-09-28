@@ -3,226 +3,581 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Scout — AI Data Intelligence Platform</title>
+<meta name="color-scheme" content="dark" />
+<title>Scout &mdash; AI Data Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --bg: #0b0d12;
-    --panel: #131720;
-    --panel-2: #1a2029;
-    --border: #262d3a;
-    --text: #e8ecf3;
-    --muted: #8b93a7;
-    --accent: #ff7a45;
-    --accent-2: #4dd4c4;
-    --ok: #4dd4c4;
-    --warn: #f2c94c;
-    --err: #ff6b6b;
-    --conflict: #e07b39;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); }
+/* ---------- Tokens ---------- */
+:root {
+  --bg:        #09090f;
+  --bg-2:      #0f0f18;
+  --surface:   rgba(255,255,255,.035);
+  --surface-2: rgba(255,255,255,.055);
+  --surface-3: rgba(255,255,255,.08);
+  --line:      rgba(255,255,255,.08);
+  --line-2:    rgba(255,255,255,.14);
 
-  header { padding: 28px 32px 16px; border-bottom: 1px solid var(--border); }
-  header h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.02em; }
-  header h1 span { color: var(--accent); }
-  header p { margin: 0; color: var(--muted); font-size: 14px; }
+  --text:   #f4f2fb;
+  --text-2: #b4b0c8;
+  --text-3: #75718a;
 
-  main { padding: 24px 32px 64px; max-width: 1280px; margin: 0 auto; }
+  --iris:  #a594ff;
+  --rose:  #ff8fb1;
+  --amber: #ffc78a;
+  --mint:  #7ee0c3;
+  --grad:      linear-gradient(120deg, #a594ff 0%, #ff8fb1 55%, #ffc78a 100%);
+  --grad-soft: linear-gradient(120deg, rgba(165,148,255,.18), rgba(255,143,177,.12) 55%, rgba(255,199,138,.10));
 
-  /* ── Prompt bar ── */
-  .prompt-bar { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; }
-  .prompt-bar input {
-    flex: 1; padding: 13px 16px; border-radius: 10px; border: 1px solid var(--border);
-    background: var(--panel); color: var(--text); font-size: 14px;
-  }
-  .prompt-bar input:focus { outline: none; border-color: var(--accent); }
-  .prompt-bar button {
-    padding: 13px 22px; border-radius: 10px; border: none; background: var(--accent);
-    color: #1a0f08; font-weight: 600; cursor: pointer; font-size: 14px; white-space: nowrap;
-  }
-  .prompt-bar button:disabled { opacity: 0.5; cursor: not-allowed; }
-  .prompt-bar button.stop-mode {
-    background: var(--err);
-    color: #fff;
-  }
+  --ok:   #7ee0c3;  --ok-bg:   rgba(126,224,195,.10);  --ok-bd:   rgba(126,224,195,.28);
+  --warn: #ffc78a;  --warn-bg: rgba(255,199,138,.10);  --warn-bd: rgba(255,199,138,.28);
+  --err:  #ff8a8a;  --err-bg:  rgba(255,138,138,.10);  --err-bd:  rgba(255,138,138,.28);
+  --conflict: #ffa36b; --conflict-bg: rgba(255,163,107,.10); --conflict-bd: rgba(255,163,107,.30);
 
-  .coverage-target-row {
-    display: flex; gap: 10px; align-items: center; margin-bottom: 20px; font-size: 13px; color: var(--muted);
-  }
-  .coverage-target-row label { white-space: nowrap; }
-  .coverage-target-row input[type=range] { width: 120px; accent-color: var(--accent-2); }
-  .coverage-target-row span { color: var(--text); font-weight: 600; min-width: 36px; }
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --mono:  "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 
-  .recipes { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
-  .recipes button {
-    background: var(--panel); border: 1px solid var(--border); color: var(--muted);
-    padding: 6px 12px; border-radius: 999px; font-size: 12px; cursor: pointer;
-  }
-  .recipes button:hover { color: var(--text); border-color: var(--accent-2); }
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.55;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; }
+::selection { background: rgba(165,148,255,.35); }
 
-  /* ── Status card ── */
-  .status-card {
-    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
-    padding: 16px 20px; margin-bottom: 20px; display: none;
-  }
-  .status-card.visible { display: block; }
-  .status-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); flex-shrink: 0; }
-  .dot.done { background: var(--ok); }
-  .dot.failed { background: var(--err); }
-  .status-row strong { color: var(--text); text-transform: capitalize; }
+/* aurora + grain backdrop */
+.backdrop { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.backdrop::before {
+  content: ""; position: absolute; inset: -20% -10% auto -10%; height: 90vh;
+  background:
+    radial-gradient(40% 55% at 22% 30%, rgba(165,148,255,.22), transparent 70%),
+    radial-gradient(35% 50% at 70% 18%, rgba(255,143,177,.14), transparent 70%),
+    radial-gradient(30% 40% at 88% 55%, rgba(255,199,138,.08), transparent 70%);
+  filter: blur(20px);
+  animation: drift 26s ease-in-out infinite alternate;
+}
+.backdrop::after {
+  content: ""; position: absolute; inset: 0; opacity: .06; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.grid-lines {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 70% 50% at 50% 0%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 50% at 50% 0%, #000 30%, transparent 75%);
+}
+@keyframes drift {
+  from { transform: translate3d(0,0,0) scale(1); }
+  to   { transform: translate3d(4%,3%,0) scale(1.08); }
+}
 
-  .stats { display: flex; gap: 18px; margin-top: 10px; flex-wrap: wrap; }
-  .stats div { font-size: 12px; color: var(--muted); }
-  .stats b { color: var(--text); font-size: 15px; display: block; }
+.page { position: relative; z-index: 1; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
 
-  /* ── Coverage meter ── */
-  .coverage-section { margin-top: 14px; }
-  .coverage-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
-  .coverage-label strong { color: var(--accent-2); font-size: 15px; }
-  .coverage-bar-outer {
-    height: 8px; background: var(--panel-2); border-radius: 4px; overflow: hidden;
-    position: relative;
-  }
-  .coverage-bar-inner {
-    height: 100%; background: var(--accent-2); border-radius: 4px;
-    transition: width 0.4s ease;
-  }
-  .coverage-bar-ci {
-    position: absolute; top: 0; height: 100%; background: rgba(77,212,196,0.18); border-radius: 4px;
-    transition: left 0.4s, width 0.4s;
-  }
-  .coverage-note { font-size: 11px; color: var(--muted); margin-top: 4px; }
+/* ---------- Top bar ---------- */
+header {
+  position: sticky; top: 0; z-index: 20;
+  background: rgba(9,9,15,.6);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid var(--line);
+}
+.header-inner { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.logo-block { display: flex; align-items: center; gap: 12px; }
+.logo-icon {
+  width: 34px; height: 34px; border-radius: 11px; flex-shrink: 0;
+  background: var(--grad); color: #1a1030;
+  display: grid; place-items: center;
+  box-shadow: 0 6px 24px -6px rgba(255,143,177,.55), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.logo-icon svg { width: 18px; height: 18px; }
+.logo-name { font-family: var(--serif); font-size: 26px; letter-spacing: -0.01em; line-height: 1; }
+.logo-tagline { font-size: 12.5px; color: var(--text-3); padding-left: 12px; margin-left: 2px; border-left: 1px solid var(--line-2); }
+.header-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.header-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 12px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line);
+  color: var(--text-2); font-size: 12px; font-weight: 500;
+}
+.header-pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--grad); }
 
-  /* ── Capture log ── */
-  .capture-log {
-    margin-top: 10px; max-height: 56px; overflow-y: hidden; font-size: 11px; color: var(--muted);
-  }
-  .capture-log span { display: inline-block; padding: 2px 7px; margin: 2px; border-radius: 4px;
-    background: var(--panel-2); border: 1px solid var(--border); }
+main { padding: 72px 0 120px; }
 
-  /* ── Main panel ── */
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
-  .panel-head {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 18px; border-bottom: 1px solid var(--border);
-  }
-  .panel-head h2 { font-size: 14px; margin: 0; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
-  .panel-head a {
-    color: var(--accent-2); text-decoration: none; font-size: 13px; border: 1px solid var(--border);
-    padding: 6px 12px; border-radius: 8px;
-  }
+/* ---------- Hero ---------- */
+.hero { text-align: center; margin-bottom: 40px; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px 6px 8px; border-radius: 999px; margin-bottom: 26px;
+  background: var(--surface); border: 1px solid var(--line-2);
+  font-size: 12.5px; color: var(--text-2);
+}
+.eyebrow b {
+  font-weight: 600; font-size: 11px; color: #1a1030;
+  background: var(--grad); padding: 2px 8px; border-radius: 999px;
+}
+.hero h1 {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(44px, 7vw, 76px); line-height: 1.02; letter-spacing: -0.025em;
+  margin-bottom: 18px;
+}
+.hero h1 em {
+  font-style: italic;
+  background: var(--grad);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  padding-right: .06em;
+}
+.hero p { color: var(--text-2); font-size: 16.5px; max-width: 580px; margin: 0 auto; }
 
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--panel-2); }
-  td.cell { cursor: pointer; }
-  td.cell:hover { color: var(--accent-2); }
+/* ---------- Prompt ---------- */
+.composer { max-width: 860px; margin: 0 auto 56px; }
+.prompt-card {
+  position: relative; border-radius: var(--r-lg); padding: 1px;
+  background: linear-gradient(var(--line-2), var(--line));
+  box-shadow: 0 30px 80px -30px rgba(165,148,255,.35), 0 8px 24px -12px rgba(0,0,0,.6);
+  transition: background .3s, box-shadow .3s;
+  margin-bottom: 18px;
+}
+.prompt-card:focus-within {
+  background: var(--grad);
+  box-shadow: 0 30px 90px -25px rgba(255,143,177,.45), 0 0 0 6px rgba(165,148,255,.10);
+}
+.prompt-inner {
+  display: flex; gap: 10px; align-items: center;
+  background: linear-gradient(180deg, #16151f, #111019);
+  border-radius: calc(var(--r-lg) - 1px);
+  padding: 10px 10px 10px 20px;
+}
+.prompt-inner > svg { width: 20px; height: 20px; color: var(--text-3); flex-shrink: 0; }
+.prompt-inner input {
+  flex: 1; min-width: 0;
+  background: transparent; border: none; outline: none;
+  color: var(--text); font-size: 16px; font-family: inherit;
+  padding: 14px 4px; caret-color: var(--rose);
+}
+.prompt-inner input::placeholder { color: var(--text-3); }
+.prompt-inner input:disabled { opacity: .55; }
 
-  .badge {
-    display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 999px; margin-left: 6px;
-  }
-  .badge-ok   { background: rgba(77,212,196,0.15); color: var(--ok); }
-  .badge-warn { background: rgba(242,201,76,0.15);  color: var(--warn); }
-  .badge-conflict { background: rgba(224,123,57,0.15); color: var(--conflict); }
+#runBtn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 24px; border-radius: 15px; border: none;
+  background: var(--grad); color: #1a1030;
+  font-weight: 650; font-size: 14.5px; letter-spacing: -0.01em;
+  cursor: pointer; white-space: nowrap;
+  box-shadow: 0 10px 30px -8px rgba(255,143,177,.6), inset 0 1px 0 rgba(255,255,255,.45);
+  transition: transform .15s, box-shadow .2s, filter .2s;
+}
+#runBtn::after { content: "\2192"; font-size: 16px; transition: transform .2s; }
+#runBtn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.05); box-shadow: 0 14px 36px -8px rgba(255,143,177,.7), inset 0 1px 0 rgba(255,255,255,.45); }
+#runBtn:hover:not(:disabled)::after { transform: translateX(3px); }
+#runBtn:disabled { opacity: .55; cursor: not-allowed; }
+#runBtn:disabled::after { content: none; }
+#runBtn.stop-mode { background: rgba(255,138,138,.14); color: var(--err); box-shadow: inset 0 0 0 1px var(--err-bd); }
+#runBtn.stop-mode::after { content: "\25A0"; font-size: 11px; }
 
-  .empty { padding: 40px; text-align: center; color: var(--muted); font-size: 13px; }
+.composer-foot { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; padding: 0 6px; }
+.coverage-target-row { display: flex; gap: 12px; align-items: center; font-size: 13px; color: var(--text-3); }
+.coverage-target-row label { color: var(--text-2); font-weight: 500; white-space: nowrap; }
+.coverage-target-row .help { max-width: 280px; font-size: 12px; line-height: 1.4; }
+.cov-val {
+  font-weight: 600; font-variant-numeric: tabular-nums; min-width: 38px;
+  background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+input[type=range] { -webkit-appearance: none; appearance: none; width: 130px; height: 4px; border-radius: 999px; background: var(--line-2); cursor: pointer; }
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; border: 3px solid var(--rose); box-shadow: 0 0 0 4px rgba(255,143,177,.18);
+}
+input[type=range]::-moz-range-thumb {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #fff; border: 3px solid var(--rose); box-shadow: 0 0 0 4px rgba(255,143,177,.18);
+}
 
-  /* ── Sources ledger ── */
-  .sources-list { padding: 8px 18px 18px; font-size: 12px; color: var(--muted); max-height: 160px; overflow-y: auto; }
-  .sources-list div { padding: 4px 0; border-bottom: 1px dashed var(--border); }
-  .src-ok     { color: var(--ok); }
-  .src-skip   { color: var(--warn); }
-  .src-fail   { color: var(--err); }
+.recipes { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 26px; }
+.recipes button {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--line);
+  color: var(--text-2); padding: 8px 14px; border-radius: 999px;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: color .2s, border-color .2s, background .2s, transform .2s;
+}
+.recipes button svg { width: 14px; height: 14px; color: var(--iris); }
+.recipes button:hover { color: var(--text); border-color: var(--line-2); background: var(--surface-2); transform: translateY(-1px); }
 
-  /* ── PPI audit panel ── */
-  .audit-panel { padding: 18px; }
-  .audit-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-  .audit-header h3 { margin: 0; font-size: 14px; }
-  .ppi-summary { font-size: 13px; color: var(--muted); }
-  .ppi-estimate { font-size: 24px; font-weight: 700; color: var(--accent-2); }
-  .ppi-ci { font-size: 12px; color: var(--muted); }
-  .audit-cells { display: flex; flex-direction: column; gap: 10px; }
-  .audit-cell {
-    background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
-    padding: 10px 14px; font-size: 13px;
-  }
-  .audit-cell .field-name { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
-  .audit-cell .value { font-weight: 600; margin: 4px 0; }
-  .audit-cell .quote { font-size: 12px; color: var(--muted); border-left: 2px solid var(--border); padding-left: 8px; margin: 4px 0; }
-  .audit-cell .label-btns { display: flex; gap: 8px; margin-top: 8px; }
-  .audit-cell .label-btns button {
-    flex: 1; padding: 6px; border-radius: 6px; border: 1px solid var(--border);
-    background: var(--panel); color: var(--text); cursor: pointer; font-size: 12px;
-  }
-  .audit-cell .label-btns button.correct   { background: rgba(77,212,196,0.15); border-color: var(--ok);  color: var(--ok);  }
-  .audit-cell .label-btns button.incorrect { background: rgba(255,107,107,0.15); border-color: var(--err); color: var(--err); }
+/* ---------- Cards ---------- */
+.card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  margin-bottom: 22px; overflow: hidden;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 20px 50px -30px rgba(0,0,0,.8);
+}
+.card::before {
+  content: ""; position: absolute; left: 10%; right: 10%; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+}
+.card-head {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 18px 24px; border-bottom: 1px solid var(--line);
+}
+.card-head h2 { font-family: var(--serif); font-weight: 400; font-size: 24px; letter-spacing: -0.01em; line-height: 1.1; }
+.card-head.sub h2 { font-size: 20px; }
 
-  /* ── Provenance drawer ── */
-  #drawer {
-    position: fixed; top: 0; right: -420px; width: 400px; height: 100%; background: var(--panel);
-    border-left: 1px solid var(--border); transition: right 0.2s ease; padding: 22px; overflow-y: auto; z-index: 100;
-  }
-  #drawer.open { right: 0; }
-  #drawer h3 { margin-top: 0; font-size: 15px; }
-  #drawer .quote {
-    background: var(--panel-2); border-left: 3px solid var(--accent-2); padding: 10px 12px;
-    border-radius: 6px; font-size: 13px; line-height: 1.5; margin: 10px 0;
-  }
-  #drawer a { color: var(--accent-2); font-size: 12px; word-break: break-all; }
-  #drawer .close { float: right; cursor: pointer; color: var(--muted); font-size: 18px; }
-  .conflict-block { margin-top: 14px; }
-  .conflict-block h4 { font-size: 12px; color: var(--conflict); margin: 0 0 8px; }
-  .conflict-item { font-size: 12px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; }
-  .conflict-item a { color: var(--muted); }
-  .trust-bar { height: 4px; background: var(--panel-2); border-radius: 2px; margin-top: 4px; overflow: hidden; }
-  .trust-fill { height: 100%; background: var(--accent-2); }
+.btn-secondary, .card-head a {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--text); text-decoration: none;
+  font-size: 13px; font-weight: 500;
+  border: 1px solid var(--line-2); background: var(--surface-2);
+  padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.btn-secondary:hover, .card-head a:hover { background: var(--surface-3); border-color: rgba(255,255,255,.24); }
+
+/* ---------- Status ---------- */
+.status-card { display: none; padding: 24px; animation: rise .4s cubic-bezier(.2,.8,.2,1); }
+.status-card.visible { display: block; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.status-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.status-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+  background: var(--amber); box-shadow: 0 0 0 0 rgba(255,199,138,.6);
+  animation: ping 1.8s ease-out infinite;
+}
+.status-dot.done   { background: var(--ok);  box-shadow: 0 0 12px var(--ok);  animation: none; }
+.status-dot.failed { background: var(--err); box-shadow: 0 0 12px var(--err); animation: none; }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(255,199,138,.55); } 100% { box-shadow: 0 0 0 10px rgba(255,199,138,0); } }
+.status-label { font-size: 13.5px; color: var(--text-2); }
+.status-label strong { color: var(--text); font-weight: 600; text-transform: capitalize; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 22px; }
+.stats-grid:empty { display: none; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-md); padding: 16px 18px;
+  transition: border-color .2s, background .2s;
+}
+.stat-card:hover { border-color: var(--line-2); background: var(--surface-2); }
+.stat-val { font-family: var(--serif); font-size: 38px; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat-lbl { font-size: 12px; color: var(--text-3); margin-top: 8px; letter-spacing: .01em; }
+
+.coverage-section { margin-bottom: 18px; }
+.coverage-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.coverage-lbl { font-size: 13px; color: var(--text-2); font-weight: 500; }
+.coverage-lbl small { color: var(--text-3); font-weight: 400; font-size: 12px; margin-left: 6px; }
+.coverage-est {
+  font-family: var(--serif); font-size: 34px; line-height: 1;
+  background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.coverage-bar-outer { height: 8px; background: rgba(255,255,255,.06); border-radius: 999px; overflow: hidden; position: relative; }
+.coverage-bar-ci { position: absolute; top: 0; height: 100%; background: rgba(255,143,177,.18); transition: left .4s ease, width .4s ease; }
+.coverage-bar-inner {
+  height: 100%; background: var(--grad); border-radius: 999px; position: relative;
+  box-shadow: 0 0 18px rgba(255,143,177,.5);
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+.coverage-bar-inner::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent);
+  background-size: 200% 100%; animation: sheen 2.4s linear infinite;
+}
+@keyframes sheen { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.coverage-note { font-size: 12px; color: var(--text-3); margin-top: 10px; font-variant-numeric: tabular-nums; }
+
+.capture-log { display: flex; flex-wrap: wrap; gap: 6px; max-height: 66px; overflow: hidden; mask-image: linear-gradient(#000 60%, transparent); -webkit-mask-image: linear-gradient(#000 60%, transparent); }
+.capture-log:empty { display: none; }
+.capture-tag {
+  padding: 3px 10px; border-radius: 999px;
+  font-family: var(--mono); font-size: 11px;
+  background: var(--surface); border: 1px solid var(--line); color: var(--text-2);
+  animation: rise .3s ease;
+}
+
+/* ---------- Table ---------- */
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+thead th {
+  text-align: left; padding: 12px 20px; white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-3); font-weight: 500; font-size: 11.5px;
+  text-transform: uppercase; letter-spacing: .08em;
+  background: rgba(255,255,255,.015);
+}
+td { padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,.05); vertical-align: top; line-height: 1.5; transition: background .15s, color .15s; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(165,148,255,.05); }
+td.cell { cursor: pointer; }
+td.cell:hover { color: #fff; background: rgba(165,148,255,.09) !important; }
+td.muted { color: var(--text-2); font-variant-numeric: tabular-nums; }
+.null { color: var(--text-3); }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 600; line-height: 1;
+  padding: 3px 8px; border-radius: 999px; margin-left: 7px;
+  border: 1px solid transparent; vertical-align: 1px; letter-spacing: .01em;
+}
+.badge-ok       { background: var(--ok-bg);       color: var(--ok);       border-color: var(--ok-bd); }
+.badge-warn     { background: var(--warn-bg);     color: var(--warn);     border-color: var(--warn-bd); }
+.badge-conflict { background: var(--conflict-bg); color: var(--conflict); border-color: var(--conflict-bd); }
+.legend-wrap { display: flex; gap: 10px; align-items: center; }
+.legend-wrap .badge { margin-left: 0; }
+#legendBadges { display: inline-flex; gap: 6px; }
+
+.empty { padding: 72px 24px; text-align: center; color: var(--text-3); }
+.empty-art {
+  width: 64px; height: 64px; margin: 0 auto 18px; border-radius: 18px;
+  display: grid; place-items: center;
+  background: var(--grad-soft); border: 1px solid var(--line-2);
+  color: var(--iris);
+}
+.empty-art svg { width: 28px; height: 28px; }
+.empty h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; color: var(--text); margin-bottom: 6px; }
+.empty p { max-width: 360px; margin: 0 auto; line-height: 1.6; font-size: 14px; }
+
+/* ---------- Sources ---------- */
+.sources-list { padding: 6px 24px 16px; max-height: 220px; overflow-y: auto; }
+.source-row { display: flex; align-items: baseline; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 12.5px; }
+.source-row:last-child { border-bottom: none; }
+.source-row.none { color: var(--text-3); }
+.src-status { flex-shrink: 0; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; border: 1px solid transparent; text-transform: uppercase; letter-spacing: .05em; }
+.src-ok   { background: var(--ok-bg);   color: var(--ok);   border-color: var(--ok-bd); }
+.src-skip { background: var(--warn-bg); color: var(--warn); border-color: var(--warn-bd); }
+.src-fail { background: var(--err-bg);  color: var(--err);  border-color: var(--err-bd); }
+.src-url { color: var(--text-2); word-break: break-all; flex: 1; font-family: var(--mono); font-size: 11.5px; }
+.src-url .reason { color: var(--text-3); font-family: "Inter", sans-serif; }
+.src-count { flex-shrink: 0; color: var(--ok); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- Audit ---------- */
+.audit-panel { padding: 24px; }
+.audit-header {
+  display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap;
+  margin-bottom: 22px; padding: 22px 24px; border-radius: var(--r-md);
+  background: var(--grad-soft); border: 1px solid var(--line-2);
+}
+.ppi-estimate { font-family: var(--serif); font-size: 52px; line-height: 1; letter-spacing: -0.02em; }
+.ppi-ci { font-size: 13px; color: var(--text-2); margin-top: 8px; }
+.ppi-stats { display: flex; gap: 28px; }
+.ppi-stat { font-size: 12px; color: var(--text-3); display: flex; flex-direction: column-reverse; align-items: flex-end; }
+.ppi-stat b { font-family: var(--serif); font-weight: 400; font-size: 30px; color: var(--text); line-height: 1.1; font-variant-numeric: tabular-nums; }
+
+.audit-cells { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.audit-cells .hint { grid-column: 1 / -1; color: var(--text-3); font-size: 13px; }
+.audit-cell {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-md); padding: 18px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: border-color .2s, transform .2s;
+  animation: rise .35s ease both;
+}
+.audit-cell:hover { border-color: var(--line-2); transform: translateY(-2px); }
+.audit-field-name { font-size: 10.5px; color: var(--iris); font-weight: 600; text-transform: uppercase; letter-spacing: .1em; }
+.audit-value { font-family: var(--serif); font-size: 22px; line-height: 1.2; }
+.audit-quote { font-size: 12.5px; color: var(--text-2); line-height: 1.6; font-style: italic; border-left: 2px solid rgba(165,148,255,.4); padding-left: 12px; }
+.audit-meta { font-size: 12px; color: var(--text-3); margin-bottom: 4px; }
+.audit-meta a { color: var(--iris); text-decoration: none; }
+.audit-meta a:hover { text-decoration: underline; }
+.label-btns { display: flex; gap: 8px; margin-top: auto; }
+.label-btns button {
+  flex: 1; padding: 9px; border-radius: 12px;
+  border: 1px solid var(--line-2); background: var(--surface);
+  color: var(--text-2); font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: background .2s, border-color .2s, color .2s;
+}
+.label-btns button:hover { background: var(--surface-2); color: var(--text); }
+.label-btns button.correct   { background: var(--ok-bg);  border-color: var(--ok-bd);  color: var(--ok); }
+.label-btns button.incorrect { background: var(--err-bg); border-color: var(--err-bd); color: var(--err); }
+
+/* ---------- Drawer ---------- */
+#drawer-overlay {
+  position: fixed; inset: 0; background: rgba(5,5,10,.55);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  z-index: 98; opacity: 0; pointer-events: none; transition: opacity .3s ease;
+}
+#drawer-overlay.open { opacity: 1; pointer-events: all; }
+#drawer {
+  position: fixed; top: 12px; bottom: 12px; right: -500px; width: min(460px, calc(100vw - 24px));
+  background: linear-gradient(180deg, rgba(24,22,36,.96), rgba(14,13,22,.97));
+  border: 1px solid var(--line-2); border-radius: var(--r-lg);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  transition: right .4s cubic-bezier(.2,.8,.2,1);
+  overflow-y: auto; z-index: 99;
+  box-shadow: -30px 0 80px -20px rgba(0,0,0,.8), 0 0 60px -20px rgba(165,148,255,.3);
+}
+#drawer.open { right: 12px; }
+.drawer-header {
+  position: sticky; top: 0; z-index: 1;
+  padding: 20px 22px 16px; border-bottom: 1px solid var(--line);
+  background: rgba(24,22,36,.92); backdrop-filter: blur(12px);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+}
+.drawer-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--iris); }
+.drawer-subtitle { font-family: var(--serif); font-size: 22px; color: var(--text); margin-top: 4px; line-height: 1.2; }
+.drawer-close {
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--surface-2); border: 1px solid var(--line); color: var(--text-2);
+  display: grid; place-items: center; cursor: pointer; transition: background .2s, color .2s, transform .2s;
+}
+.drawer-close:hover { background: var(--surface-3); color: var(--text); transform: rotate(90deg); }
+.drawer-close svg { width: 15px; height: 15px; }
+.drawer-body { padding: 22px 22px 32px; }
+.drawer-value { font-family: var(--serif); font-size: 36px; line-height: 1.1; letter-spacing: -0.015em; margin-bottom: 12px; word-break: break-word; }
+.drawer-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
+.drawer-badges:empty { display: none; }
+.drawer-badges .badge { margin-left: 0; }
+.drawer-label { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); margin-bottom: 8px; }
+.drawer-quote-block {
+  position: relative; padding: 18px 18px 18px 22px; margin-bottom: 22px;
+  border-radius: var(--r-md); background: var(--grad-soft); border: 1px solid var(--line-2);
+  font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 1.5; color: var(--text);
+}
+.drawer-quote-block::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 3px; background: var(--grad); }
+.drawer-source-link {
+  display: block; padding: 12px 14px; margin-bottom: 16px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  text-decoration: none; transition: border-color .2s, background .2s;
+}
+.drawer-source-link:hover { border-color: rgba(165,148,255,.5); background: rgba(165,148,255,.08); }
+.drawer-source-text { font-family: var(--mono); font-size: 12px; color: var(--iris); word-break: break-all; }
+.drawer-meta-row { font-size: 13px; color: var(--text-2); padding: 12px 0; border-top: 1px solid var(--line); display: flex; align-items: flex-start; gap: 10px; }
+.drawer-meta-row a { color: var(--iris); word-break: break-all; }
+.dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; background: var(--text-3); }
+.dot.ok { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.dot.warn { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+
+.conflict-section { margin-top: 22px; }
+.conflict-heading { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--conflict); margin-bottom: 10px; }
+.conflict-card { background: var(--conflict-bg); border: 1px solid var(--conflict-bd); border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; }
+.conflict-val { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.conflict-url { font-size: 12px; word-break: break-all; }
+.conflict-url a { color: var(--text-2); }
+.conflict-url a:hover { color: var(--conflict); }
+.trust-bar { height: 4px; background: rgba(255,255,255,.08); border-radius: 999px; margin-top: 10px; overflow: hidden; }
+.trust-fill { height: 100%; background: var(--grad); border-radius: 999px; }
+
+/* ---------- Footer ---------- */
+footer { text-align: center; color: var(--text-3); font-size: 12px; padding: 0 0 40px; }
+footer em { font-family: var(--serif); font-size: 15px; color: var(--text-2); }
+
+/* ---------- Misc ---------- */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.2); }
+:focus-visible { outline: 2px solid var(--iris); outline-offset: 2px; }
+.prompt-inner input:focus-visible { outline: none; }
+
+@media (max-width: 760px) {
+  .wrap { padding: 0 16px; }
+  main { padding-top: 44px; }
+  .logo-tagline, .header-pills { display: none; }
+  .prompt-inner { flex-wrap: wrap; padding: 8px; }
+  .prompt-inner > svg { display: none; }
+  .prompt-inner input { padding: 12px; width: 100%; flex-basis: 100%; }
+  #runBtn { width: 100%; justify-content: center; }
+  .composer-foot { flex-direction: column; align-items: flex-start; }
+  .coverage-target-row { flex-wrap: wrap; }
+  .card-head { padding: 16px; }
+  .audit-cells { grid-template-columns: 1fr; }
+  .ppi-stat { align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
 </style>
 </head>
 <body>
+<div class="backdrop" aria-hidden="true"></div>
+<div class="grid-lines" aria-hidden="true"></div>
 
+<div class="page">
 <header>
-  <h1>Scout <span>/</span> AI Data Intelligence Platform</h1>
-  <p>Describe a dataset in plain English. Every cell is source-backed, and Scout reports how complete the result is.</p>
+  <div class="wrap header-inner">
+    <div class="logo-block">
+      <div class="logo-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4-4"/></svg>
+      </div>
+      <span class="logo-name">Scout</span>
+      <span class="logo-tagline">AI Data Intelligence</span>
+    </div>
+    <div class="header-pills">
+      <span class="header-pill"><i></i>Chao2 coverage</span>
+      <span class="header-pill"><i></i>Source-backed cells</span>
+      <span class="header-pill"><i></i>KBT truth discovery</span>
+    </div>
+  </div>
 </header>
 
-<main>
-  <div class="prompt-bar">
-    <input id="prompt" placeholder="e.g. Companies that sponsored student hackathons in India in 2025, with tier and contact URL" />
-    <button id="runBtn" onclick="handleRunBtn()">Run</button>
-  </div>
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow"><b>NEW</b> Every cell traced to a verbatim source quote</div>
+    <h1>Ask for any dataset.<br/><em>Get it, with receipts.</em></h1>
+    <p>Describe what you need in plain language. Scout plans the search, reads the web, and builds a table where every value is backed by evidence.</p>
+  </section>
 
-  <div class="coverage-target-row">
-    <label for="coverageTarget">Coverage target:</label>
-    <input type="range" id="coverageTarget" min="50" max="95" value="80" step="5"
-           oninput="document.getElementById('coverageVal').textContent = this.value + '%'" />
-    <span id="coverageVal">80%</span>
-    <span style="color:var(--muted); font-size:12px;">Scout keeps searching until it's probably found this fraction of what exists.</span>
-  </div>
-
-  <div class="recipes">
-    <button onclick="fillRecipe(0)">Hackathon sponsors India 2025</button>
-    <button onclick="fillRecipe(1)">Remote backend jobs at fintech startups</button>
-    <button onclick="fillRecipe(2)">D2C skincare brands in India</button>
-    <button onclick="fillRecipe(3)">Open-source LLMs released 2025</button>
-  </div>
-
-  <!-- Status card with coverage meter -->
-  <div class="status-card" id="statusCard">
-    <div class="status-row">
-      <span class="dot" id="statusDot"></span>
-      <span>Status: <strong id="statusText">—</strong></span>
+  <section class="composer">
+    <div class="prompt-card">
+      <div class="prompt-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17l.7 1.8L21.5 19.5l-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z"/></svg>
+        <input
+          id="prompt" type="text" autocomplete="off" spellcheck="false"
+          placeholder="Companies that sponsored student hackathons in India in 2025, with tier and contact URL"
+          aria-label="Data request prompt"
+        />
+        <button id="runBtn" onclick="handleRunBtn()" aria-label="Run Scout">Run Scout</button>
+      </div>
     </div>
-    <div class="stats" id="statsRow"></div>
 
-    <!-- Coverage meter -->
+    <div class="composer-foot">
+      <div class="coverage-target-row">
+        <label for="coverageTarget">Coverage target</label>
+        <input
+          type="range" id="coverageTarget" min="50" max="95" value="80" step="5"
+          oninput="document.getElementById('coverageVal').textContent = this.value + '%'"
+          aria-label="Coverage target percentage"
+        />
+        <span class="cov-val" id="coverageVal">80%</span>
+      </div>
+      <div class="coverage-target-row"><span class="help">Scout keeps searching until it estimates this share of all matching entities has been found.</span></div>
+    </div>
+
+    <div class="recipes" role="list" aria-label="Example prompts">
+      <button onclick="fillRecipe(0)" role="listitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Hackathon sponsors India 2025</button>
+      <button onclick="fillRecipe(1)" role="listitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Remote fintech backend jobs</button>
+      <button onclick="fillRecipe(2)" role="listitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13c0-5 5-9 16-9 0 11-4 16-9 16z"/><path d="M4 21c3-6 7-9 11-11"/></svg>D2C skincare brands India</button>
+      <button onclick="fillRecipe(3)" role="listitem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"/></svg>Open-source LLMs 2025</button>
+    </div>
+  </section>
+
+  <!-- Status -->
+  <div class="card status-card" id="statusCard" role="status" aria-live="polite">
+    <div class="status-row">
+      <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+      <span class="status-label">Status: <strong id="statusText">&mdash;</strong></span>
+    </div>
+    <div class="stats-grid" id="statsRow"></div>
     <div class="coverage-section" id="coverageSection" style="display:none">
-      <div class="coverage-label">
-        <span>Coverage estimate (Chao2 lower bound)</span>
-        <strong id="coverageEst">—</strong>
+      <div class="coverage-header">
+        <span class="coverage-lbl">Coverage estimate<small>Chao2 lower bound</small></span>
+        <span class="coverage-est" id="coverageEst">&mdash;</span>
       </div>
       <div class="coverage-bar-outer">
         <div class="coverage-bar-ci" id="coverageCIBar"></div>
@@ -230,43 +585,50 @@
       </div>
       <div class="coverage-note" id="coverageNote"></div>
     </div>
-
-    <!-- Capture log -->
-    <div class="capture-log" id="captureLog"></div>
+    <div class="capture-log" id="captureLog" aria-label="Capture activity log"></div>
   </div>
 
-  <!-- Results table -->
-  <div class="panel">
-    <div class="panel-head">
+  <!-- Results -->
+  <div class="card">
+    <div class="card-head">
       <h2 id="resultsTitle">Results</h2>
-      <div style="display:flex;gap:8px;align-items:center">
-        <span id="legendBadges" style="font-size:11px; color:var(--muted)"></span>
-        <a id="exportLink" href="#" target="_blank">Export CSV</a>
+      <div class="legend-wrap">
+        <span id="legendBadges"></span>
+        <a id="exportLink" href="#" target="_blank" aria-label="Export results as CSV">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Export CSV
+        </a>
       </div>
     </div>
-    <div id="tableWrap"><div class="empty">Run a prompt above to see results here.</div></div>
-
-    <div class="panel-head" style="border-top:1px solid var(--border); border-bottom:none;">
-      <h2>Source Ledger</h2>
+    <div class="table-scroll" id="tableWrap">
+      <div class="empty">
+        <div class="empty-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg></div>
+        <h3>Your table will appear here</h3>
+        <p>Run a prompt above. Click any cell to see the exact quote and page it came from.</p>
+      </div>
     </div>
-    <div class="sources-list" id="sourcesList"><div style="padding:8px 0; color:var(--muted)">No sources touched yet.</div></div>
+    <div class="card-head sub" style="border-top:1px solid var(--line)">
+      <h2>Source ledger</h2>
+    </div>
+    <div class="sources-list" id="sourcesList">
+      <div class="source-row none">No sources touched yet.</div>
+    </div>
   </div>
 
-  <!-- PPI Accuracy Audit panel -->
-  <div class="panel" id="auditPanel" style="display:none">
-    <div class="panel-head">
-      <h2>Accuracy Audit</h2>
-      <button onclick="loadAuditSample()" style="background:var(--panel-2);border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px;">Load 10 cells</button>
+  <!-- PPI audit -->
+  <div class="card" id="auditPanel" style="display:none">
+    <div class="card-head">
+      <h2>Accuracy audit</h2>
+      <button class="btn-secondary" onclick="loadAuditSample()">Load 10 cells</button>
     </div>
     <div class="audit-panel">
       <div class="audit-header">
         <div>
-          <div class="ppi-estimate" id="ppiEstimate">—</div>
-          <div class="ppi-ci" id="ppiCI">Label cells below to compute accuracy estimate</div>
+          <div class="ppi-estimate" id="ppiEstimate">&mdash;</div>
+          <div class="ppi-ci" id="ppiCI">Label cells below to compute a PPI accuracy estimate</div>
         </div>
-        <div class="ppi-summary">
-          <div>Cells scored: <b id="ppiN">0</b></div>
-          <div>Cells labelled: <b id="ppiLabelled">0</b></div>
+        <div class="ppi-stats">
+          <div class="ppi-stat">Cells scored <b id="ppiN">0</b></div>
+          <div class="ppi-stat">Cells labelled <b id="ppiLabelled">0</b></div>
         </div>
       </div>
       <div class="audit-cells" id="auditCells"></div>
@@ -274,15 +636,27 @@
   </div>
 </main>
 
-<!-- Provenance drawer -->
-<div id="drawer">
-  <span class="close" onclick="closeDrawer()">✕</span>
-  <h3 id="drawerField"></h3>
-  <div id="drawerBody"></div>
+<footer><em>Scout</em> &middot; every answer, sourced.</footer>
+</div>
+
+<div id="drawer-overlay" onclick="closeDrawer()" aria-hidden="true"></div>
+
+<div id="drawer" role="complementary" aria-label="Cell provenance details">
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-title" id="drawerField">&mdash;</div>
+      <div class="drawer-subtitle" id="drawerEntity"></div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()" aria-label="Close provenance drawer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
 </div>
 
 <script>
 const API = "http://localhost:8000/api";
+const DASH = "—";
 let currentRunId = null;
 let eventSource  = null;
 let _records     = [];
@@ -296,23 +670,25 @@ const RECIPES = [
 ];
 
 function fillRecipe(i) {
-  document.getElementById("prompt").value = RECIPES[i];
+  const inp = document.getElementById("prompt");
+  inp.value = RECIPES[i];
+  inp.focus();
 }
 
-// ── Run / Stop toggle ─────────────────────────────────────────────────────
+document.getElementById("prompt").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !document.getElementById("runBtn").disabled) handleRunBtn();
+});
 
+// -- Run / Stop toggle
 function handleRunBtn() {
   const btn = document.getElementById("runBtn");
-  if (btn.classList.contains("stop-mode")) {
-    stopRun();
-  } else {
-    startRun();
-  }
+  if (btn.classList.contains("stop-mode")) stopRun();
+  else startRun();
 }
 
 function _setRunMode() {
   const btn = document.getElementById("runBtn");
-  btn.textContent = "Run";
+  btn.textContent = "Run Scout";
   btn.classList.remove("stop-mode");
   btn.disabled = false;
   document.getElementById("prompt").disabled = false;
@@ -320,7 +696,7 @@ function _setRunMode() {
 
 function _setStopMode() {
   const btn = document.getElementById("runBtn");
-  btn.textContent = "Stop Searching";
+  btn.textContent = "Stop";
   btn.classList.add("stop-mode");
   btn.disabled = false;
   document.getElementById("prompt").disabled = true;
@@ -334,17 +710,13 @@ function _setLoadingMode(label) {
   document.getElementById("prompt").disabled = true;
 }
 
-// ── Start run ──────────────────────────────────────────────────────────────
-
+// -- Start run
 async function startRun() {
   const prompt = document.getElementById("prompt").value.trim();
   if (!prompt) return;
   const targetCoverage = parseInt(document.getElementById("coverageTarget").value) / 100;
-
   _setLoadingMode("Starting…");
-
   if (eventSource) { eventSource.close(); eventSource = null; }
-
   try {
     const res = await fetch(`${API}/runs`, {
       method: "POST",
@@ -354,48 +726,40 @@ async function startRun() {
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
     currentRunId = data.id;
-
     document.getElementById("statusCard").classList.add("visible");
     document.getElementById("exportLink").href = `${API}/runs/${currentRunId}/export.csv`;
     document.getElementById("auditPanel").style.display = "block";
     document.getElementById("coverageSection").style.display = "none";
     document.getElementById("captureLog").innerHTML = "";
     _records = []; _fields = [];
-
     _setStopMode();
     connectSSE(currentRunId);
+    document.getElementById("statusCard").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
     alert("Could not start run: " + err.message + "\n\nIs the API running at " + API + "?");
     _setRunMode();
   }
 }
 
-// ── Stop run ───────────────────────────────────────────────────────────────
-
+// -- Stop run
 async function stopRun() {
   if (!currentRunId) return;
   _setLoadingMode("Stopping…");
   try {
     await fetch(`${API}/runs/${currentRunId}`, { method: "DELETE" });
-    // Button resets to Run when the SSE status_change/done event arrives
   } catch (err) {
-    // If the request fails just re-enable stop mode so the user can try again
     _setStopMode();
   }
 }
 
-// ── SSE ────────────────────────────────────────────────────────────────────
-
+// -- SSE
 function connectSSE(runId) {
   eventSource = new EventSource(`${API}/runs/${runId}/stream`);
-
   eventSource.onmessage = function(e) {
     const ev = JSON.parse(e.data);
     handleEvent(ev, runId);
   };
-
   eventSource.onerror = function() {
-    // Server closed the connection (run done or error) — do a final poll
     eventSource.close();
     eventSource = null;
     fetchAndRender(runId);
@@ -412,28 +776,22 @@ function handleEvent(ev, runId) {
         fetchAndRender(runId);
       }
       break;
-
     case "capture_start":
       addCaptureTag(ev.engine, ev.query);
       break;
-
     case "coverage":
       renderCoverage(ev);
       break;
-
     case "record_found":
-      // Refresh table incrementally on new records
       fetchAndRender(runId);
       break;
-
     case "done":
       renderStats(ev.stats);
       fetchAndRender(runId);
       _setRunMode();
       break;
-
     case "error":
-      setStatus("failed — " + ev.message);
+      setStatus("failed " + DASH + " " + ev.message);
       _setRunMode();
       break;
   }
@@ -441,28 +799,26 @@ function handleEvent(ev, runId) {
 
 function setStatus(status) {
   const dot = document.getElementById("statusDot");
-  dot.className = "dot " + (status === "done" ? "done" : status.startsWith("failed") ? "failed" : "");
+  dot.className = "status-dot " +
+    (status === "done" ? "done" : status.startsWith("failed") ? "failed" : "");
   document.getElementById("statusText").textContent = status;
 }
 
 function addCaptureTag(engine, query) {
   const log = document.getElementById("captureLog");
   const tag = document.createElement("span");
-  tag.textContent = `[${engine}] ${query.slice(0, 40)}`;
+  tag.className = "capture-tag";
+  tag.textContent = `${engine} · ${query.slice(0, 38)}`;
   log.appendChild(tag);
 }
 
 function renderCoverage(ev) {
   document.getElementById("coverageSection").style.display = "block";
   const pct = Math.round((ev.coverage_lo || ev.coverage_est || 0) * 100);
-  const estPct = Math.round((ev.coverage_est || 0) * 100);
-
-  document.getElementById("coverageEst").textContent = `≥${pct}%`;
-  document.getElementById("coverageBar").style.width = pct + "%";
+  document.getElementById("coverageEst").textContent  = `≥${pct}%`;
+  document.getElementById("coverageBar").style.width  = pct + "%";
   document.getElementById("coverageNote").textContent =
-    `S̃ = ${ev.s_hat} estimated total · ${ev.s_obs} found · T = ${ev.T} captures`;
-
-  // CI shading on the bar
+    `${ev.s_hat} estimated total · ${ev.s_obs} found · ${ev.T} captures`;
   const ciLo = Math.round((ev.coverage_lo || 0) * 100);
   const ciHi = Math.min(100, Math.round(((ev.s_obs / Math.max(ev.s_hat * 0.85, 1)) || 0) * 100));
   document.getElementById("coverageCIBar").style.left  = ciLo + "%";
@@ -474,22 +830,25 @@ function renderStats(stats) {
   const statsRow = document.getElementById("statsRow");
   statsRow.innerHTML = "";
   const labels = {
-    records_after_dedupe: "entities",
-    pages_fetched: "pages fetched",
-    captures_run: "captures",
-    coverage_estimate: "coverage",
-    urls_skipped_compliance: "skipped (compliance)",
+    records_after_dedupe:      "Entities",
+    pages_fetched:             "Pages fetched",
+    captures_run:              "Captures",
+    coverage_estimate:         "Coverage",
+    urls_skipped_compliance:   "Compliance skips",
   };
   for (const [key, label] of Object.entries(labels)) {
     if (stats[key] !== undefined && stats[key] !== null) {
       const val = key === "coverage_estimate" ? Math.round(stats[key] * 100) + "%" : stats[key];
-      statsRow.innerHTML += `<div><b>${val}</b>${label}</div>`;
+      statsRow.innerHTML += `
+        <div class="stat-card">
+          <div class="stat-val">${escHtml(val)}</div>
+          <div class="stat-lbl">${label}</div>
+        </div>`;
     }
   }
 }
 
-// ── Full render after fetch ────────────────────────────────────────────────
-
+// -- Full render after fetch
 async function fetchAndRender(runId) {
   try {
     const res = await fetch(`${API}/runs/${runId}`);
@@ -501,7 +860,6 @@ async function fetchAndRender(runId) {
 function renderRun(run) {
   setStatus(run.status + (run.error ? `: ${run.error}` : ""));
   renderStats(run.stats || {});
-
   if (run.stats && run.stats.coverage_estimate != null) {
     renderCoverage({
       coverage_est: run.stats.coverage_estimate,
@@ -511,112 +869,119 @@ function renderRun(run) {
       T: run.stats.captures_run || 0,
     });
   }
-
   _fields  = (run.data_spec && run.data_spec.fields) || [];
   _records = run.records || [];
-
   document.getElementById("resultsTitle").textContent =
-    run.data_spec ? `Results — ${run.data_spec.entity} (${_records.length})` : "Results";
-
+    run.data_spec ? `${run.data_spec.entity} · ${_records.length}` : "Results";
   renderTable(_fields, _records);
   renderSources(run.sources || []);
 }
 
+const EMPTY_ICON = `<div class="empty-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg></div>`;
+
 function renderTable(fields, records) {
   const wrap = document.getElementById("tableWrap");
   if (!fields.length) {
-    wrap.innerHTML = `<div class="empty">Planning the workflow…</div>`;
+    wrap.innerHTML = `<div class="empty">${EMPTY_ICON}<h3>Planning the workflow…</h3><p>Working out which fields to collect and where to look.</p></div>`;
     return;
   }
   if (!records.length) {
-    wrap.innerHTML = `<div class="empty">No records yet — still collecting.</div>`;
+    wrap.innerHTML = `<div class="empty">${EMPTY_ICON}<h3>Still collecting</h3><p>Records will stream in here as sources are read.</p></div>`;
     return;
   }
 
   let conflictCount = 0, unverifiedCount = 0;
-
-  let html = "<table><thead><tr>";
-  for (const f of fields) html += `<th>${f.name}</th>`;
-  html += "<th>sourced</th></tr></thead><tbody>";
+  let html = `<table><thead><tr>`;
+  for (const f of fields) html += `<th>${escHtml(f.name)}</th>`;
+  html += `<th>Sourced</th></tr></thead><tbody>`;
 
   records.forEach((rec, ri) => {
     html += "<tr>";
     for (const f of fields) {
-      const val  = rec.fields[f.name];
-      const prov = rec.provenance[f.name] || {};
-      const hasConflict = prov.conflicts && prov.conflicts.length > 0;
-      const verified    = prov.verified;
+      const val          = rec.fields[f.name];
+      const prov         = rec.provenance[f.name] || {};
+      const hasConflict  = prov.conflicts && prov.conflicts.length > 0;
+      const verified     = prov.verified;
       const corroborated = !!prov.corroborated_by;
-
-      if (hasConflict) conflictCount++;
+      if (hasConflict)             conflictCount++;
       if (!verified && val != null) unverifiedCount++;
 
       let badges = "";
-      if (corroborated) badges += `<span class="badge badge-ok">✓✓</span>`;
-      if (hasConflict)  badges += `<span class="badge badge-conflict" title="Sources disagree — click to see">⚡</span>`;
-      if (!verified && val != null) badges += `<span class="badge badge-warn" title="Quote found but value not in quote">?</span>`;
+      if (corroborated) badges += `<span class="badge badge-ok" title="Corroborated by a second source">✓✓</span>`;
+      if (hasConflict)  badges += `<span class="badge badge-conflict" title="Sources disagree — click to see">conflict</span>`;
+      if (!verified && val != null) badges += `<span class="badge badge-warn" title="Quote found but value not confirmed in quote">?</span>`;
 
-      html += `<td class="cell" onclick="openDrawer(${ri}, '${f.name}')">${val != null ? escHtml(String(val)) : '<span style="color:var(--muted)">—</span>'}${badges}</td>`;
+      html += `<td class="cell" onclick="openDrawer(${ri}, '${escHtml(f.name)}')" title="Click to view provenance">${val != null ? escHtml(String(val)) : `<span class="null">${DASH}</span>`}${badges}</td>`;
     }
-    html += `<td>${rec.fields_sourced != null ? Math.round(rec.fields_sourced * 100) + "%" : (rec.confidence != null ? Math.round(rec.confidence * 100) + "%" : "—")}</td></tr>`;
+    const sourced = rec.fields_sourced != null ? rec.fields_sourced : rec.confidence;
+    html += `<td class="muted">${sourced != null ? Math.round(sourced * 100) + "%" : DASH}</td></tr>`;
   });
-  html += "</tbody></table>";
+  html += `</tbody></table>`;
   wrap.innerHTML = html;
 
   const leg = document.getElementById("legendBadges");
   leg.innerHTML = [
-    conflictCount  ? `<span class="badge badge-conflict">⚡ ${conflictCount} conflicts</span>` : "",
-    unverifiedCount ? `<span class="badge badge-warn">? ${unverifiedCount} unverified</span>` : "",
-  ].filter(Boolean).join(" ");
+    conflictCount   ? `<span class="badge badge-conflict">${conflictCount} conflicts</span>`   : "",
+    unverifiedCount ? `<span class="badge badge-warn">${unverifiedCount} unverified</span>` : "",
+  ].filter(Boolean).join("");
 }
 
 function renderSources(sources) {
   const el = document.getElementById("sourcesList");
   if (!sources.length) {
-    el.innerHTML = `<div style="padding:8px 0; color:var(--muted)">No sources touched yet.</div>`;
+    el.innerHTML = `<div class="source-row none">No sources touched yet.</div>`;
     return;
   }
   el.innerHTML = sources.map(s => {
     const cls = s.status === "ok" ? "src-ok" : s.status === "skipped" ? "src-skip" : "src-fail";
-    return `<div><span class="${cls}">[${s.status}]</span> ${escHtml(s.url)}${s.reason ? " — " + escHtml(s.reason) : ""}${s.records_found ? ` <b>(+${s.records_found})</b>` : ""}</div>`;
+    return `<div class="source-row">
+      <span class="src-status ${cls}">${escHtml(s.status)}</span>
+      <span class="src-url">${escHtml(s.url)}${s.reason ? ` <span class="reason">${DASH} ${escHtml(s.reason)}</span>` : ""}</span>
+      ${s.records_found ? `<span class="src-count">+${s.records_found}</span>` : ""}
+    </div>`;
   }).join("");
 }
 
-// ── Drawer ─────────────────────────────────────────────────────────────────
-
+// -- Drawer
 function openDrawer(ri, fieldName) {
-  const rec  = _records[ri];
-  const prov = rec.provenance[fieldName] || {};
-  const val  = rec.fields[fieldName];
+  const rec       = _records[ri];
+  const prov      = rec.provenance[fieldName] || {};
+  const val       = rec.fields[fieldName];
   const conflicts = prov.conflicts || [];
 
-  document.getElementById("drawerField").textContent =
-    `${fieldName} · ${rec.entity_key || ""}`;
+  document.getElementById("drawerField").textContent  = fieldName;
+  document.getElementById("drawerEntity").textContent = rec.entity_key || "";
+
+  let badges = "";
+  if (prov.corroborated_by) badges += `<span class="badge badge-ok">✓✓ Corroborated</span>`;
+  if (conflicts.length > 0) badges += `<span class="badge badge-conflict">Conflict</span>`;
+  if (!prov.verified && val != null) badges += `<span class="badge badge-warn">Unverified</span>`;
 
   let html = `
-    <div style="margin-bottom:10px">
-      <span style="font-size:18px; font-weight:700">${val != null ? escHtml(String(val)) : "—"}</span>
-      ${prov.corroborated_by ? `<span class="badge badge-ok">✓✓ Corroborated</span>` : ""}
-      ${conflicts.length > 0 ? `<span class="badge badge-conflict">⚡ Conflict</span>` : ""}
+    <div class="drawer-value">${val != null ? escHtml(String(val)) : DASH}</div>
+    <div class="drawer-badges">${badges}</div>
+    <div class="drawer-label">Evidence</div>
+    <div class="drawer-quote-block">${prov.evidence ? `“${escHtml(prov.evidence)}”` : "No verified evidence found for this cell."}</div>
+    <div class="drawer-label">Source</div>
+    <a class="drawer-source-link" href="${escHtml(prov.url || '#')}" target="_blank" rel="noopener">
+      <span class="drawer-source-text">${escHtml(prov.url || DASH)}</span>
+    </a>
+    <div class="drawer-meta-row">
+      <span class="dot ${prov.verified ? "ok" : "warn"}"></span>
+      <span>${prov.verified ? "Evidence verified: value found verbatim in quote" : "Not verified: value not found verbatim in quote"}</span>
     </div>
-    <div class="quote">${prov.evidence ? '"' + escHtml(prov.evidence) + '"' : "No verified evidence."}</div>
-    <div style="margin-top:6px">
-      Source: <a href="${prov.url || '#'}" target="_blank">${escHtml(prov.url || "—")}</a>
-    </div>
-    <div style="margin-top:6px; font-size:12px; color:var(--muted)">
-      ${prov.verified ? "✓ Evidence verified" : "⚠ Not verified (value not found in quote)"}
-      ${prov.corroborated_by ? `<br/>Also confirmed by: <a href="${prov.corroborated_by}" target="_blank">${escHtml(prov.corroborated_by)}</a>` : ""}
-      ${prov.kbt_prob != null ? `<br/>KBT probability: ${Math.round(prov.kbt_prob * 100)}%` : ""}
-    </div>
+    ${prov.corroborated_by ? `<div class="drawer-meta-row"><span class="dot ok"></span><span>Also confirmed by <a href="${escHtml(prov.corroborated_by)}" target="_blank" rel="noopener">${escHtml(prov.corroborated_by)}</a></span></div>` : ""}
+    ${prov.kbt_prob != null ? `<div class="drawer-meta-row"><span class="dot"></span><span>KBT trust probability: ${Math.round(prov.kbt_prob * 100)}%</span></div>` : ""}
   `;
 
   if (conflicts.length > 0) {
-    html += `<div class="conflict-block">
-      <h4>⚡ ${conflicts.length} conflicting source${conflicts.length > 1 ? "s" : ""}</h4>`;
+    html += `<div class="conflict-section">
+      <div class="conflict-heading">${conflicts.length} conflicting source${conflicts.length > 1 ? "s" : ""}</div>`;
     for (const c of conflicts) {
-      html += `<div class="conflict-item">
-        Value: <b>${escHtml(String(c.value))}</b><br/>
-        Source: <a href="${escHtml(c.url || '')}" target="_blank">${escHtml(c.url || "—")}</a>
+      html += `<div class="conflict-card">
+        <div class="conflict-val">${escHtml(String(c.value))}</div>
+        <div class="conflict-url"><a href="${escHtml(c.url || '')}" target="_blank" rel="noopener">${escHtml(c.url || DASH)}</a></div>
+        ${c.trust != null ? `<div class="trust-bar"><div class="trust-fill" style="width:${Math.round(c.trust * 100)}%"></div></div>` : ""}
       </div>`;
     }
     html += `</div>`;
@@ -624,14 +989,19 @@ function openDrawer(ri, fieldName) {
 
   document.getElementById("drawerBody").innerHTML = html;
   document.getElementById("drawer").classList.add("open");
+  document.getElementById("drawer-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
 }
 
 function closeDrawer() {
   document.getElementById("drawer").classList.remove("open");
+  document.getElementById("drawer-overlay").classList.remove("open");
+  document.body.style.overflow = "";
 }
 
-// ── PPI Audit ──────────────────────────────────────────────────────────────
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
 
+// -- PPI Audit
 async function loadAuditSample() {
   if (!currentRunId) return;
   try {
@@ -641,27 +1011,28 @@ async function loadAuditSample() {
     refreshPPI();
   } catch (e) {
     document.getElementById("auditCells").innerHTML =
-      `<div style="color:var(--muted);font-size:13px">No claims available yet — run a prompt first.</div>`;
+      `<div class="hint">No claims available yet. Run a prompt first.</div>`;
   }
 }
 
 function renderAuditCells(claims) {
   const container = document.getElementById("auditCells");
   container.innerHTML = "";
-  claims.forEach(c => {
+  claims.forEach((c, i) => {
     const div = document.createElement("div");
     div.className = "audit-cell";
     div.id = `audit-${c.id}`;
+    div.style.animationDelay = `${i * 40}ms`;
     div.innerHTML = `
-      <div class="field-name">${escHtml(c.field)}</div>
-      <div class="value">${escHtml(c.value_raw || "—")}</div>
-      <div class="quote">${escHtml(c.quote ? '"' + c.quote.slice(0, 120) + '"' : "No quote")}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px">
-        Verifier: ${c.support_score != null ? Math.round(c.support_score * 100) + "%" : "not scored yet"}
-        · <a href="${escHtml(c.source_url || '')}" target="_blank" style="color:var(--muted)">source</a>
+      <div class="audit-field-name">${escHtml(c.field)}</div>
+      <div class="audit-value">${escHtml(c.value_raw || DASH)}</div>
+      <div class="audit-quote">${escHtml(c.quote ? `“${c.quote.slice(0, 120)}”` : "No quote available")}</div>
+      <div class="audit-meta">
+        Verifier score: ${c.support_score != null ? Math.round(c.support_score * 100) + "%" : "not scored yet"}
+        · <a href="${escHtml(c.source_url || '')}" target="_blank" rel="noopener">source</a>
       </div>
       <div class="label-btns">
-        <button onclick="submitLabel('${c.id}', true,  this)">✓ Correct</button>
+        <button onclick="submitLabel('${c.id}', true, this)">✓ Correct</button>
         <button onclick="submitLabel('${c.id}', false, this)">✗ Wrong</button>
       </div>
     `;
@@ -676,11 +1047,9 @@ async function submitLabel(claimId, correct, btn) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ claim_id: claimId, correct }),
     });
-    // Highlight the chosen button
     const cell = btn.closest(".audit-cell");
     cell.querySelectorAll(".label-btns button").forEach(b => b.className = "");
     btn.className = correct ? "correct" : "incorrect";
-    // Refresh PPI estimate
     refreshPPI();
   } catch (e) { console.error(e); }
 }
@@ -688,27 +1057,23 @@ async function submitLabel(claimId, correct, btn) {
 async function refreshPPI() {
   if (!currentRunId) return;
   try {
-    const res = await fetch(`${API}/runs/${currentRunId}/accuracy`);
+    const res  = await fetch(`${API}/runs/${currentRunId}/accuracy`);
     const data = await res.json();
     const ppiEl = document.getElementById("ppiEstimate");
     const ciEl  = document.getElementById("ppiCI");
-    const nEl   = document.getElementById("ppiN");
-    const labEl = document.getElementById("ppiLabelled");
-
     if (data.theta_hat != null) {
       ppiEl.textContent = Math.round(data.theta_hat * 100) + "% accurate";
       ciEl.textContent  = `95% CI: ${Math.round(data.ci_low * 100)}% – ${Math.round(data.ci_high * 100)}%`;
     } else {
-      ppiEl.textContent = "—";
-      ciEl.textContent  = "Label cells below to compute accuracy estimate";
+      ppiEl.textContent = DASH;
+      ciEl.textContent  = "Label cells below to compute a PPI accuracy estimate";
     }
-    nEl.textContent   = data.n_cells    || 0;
-    labEl.textContent = data.n_labeled  || 0;
+    document.getElementById("ppiN").textContent        = data.n_cells   || 0;
+    document.getElementById("ppiLabelled").textContent = data.n_labeled || 0;
   } catch (e) { /* ignore */ }
 }
 
-// ── Utilities ──────────────────────────────────────────────────────────────
-
+// -- Utilities
 function escHtml(s) {
   return String(s)
     .replace(/&/g, "&amp;")
