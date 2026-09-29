@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 
-load_dotenv()
+# override=True: a stale GROQ_API_KEY in the OS environment must not shadow .env
+load_dotenv(find_dotenv(usecwd=True), override=True)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
