@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="dark" />
+<meta name="description" content="Scout AI Data Intelligence Platform: Turn plain-English data requests into clean, sourced spreadsheets with verbatim evidence and Chao2 coverage estimation." />
 <title>Scout &mdash; AI Data Intelligence Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -188,8 +189,18 @@ main { padding: 72px 0 120px; }
 #runBtn:hover:not(:disabled)::after { transform: translateX(3px); }
 #runBtn:disabled { opacity: .55; cursor: not-allowed; }
 #runBtn:disabled::after { content: none; }
-#runBtn.stop-mode { background: rgba(255,138,138,.14); color: var(--err); box-shadow: inset 0 0 0 1px var(--err-bd); }
+#runBtn.stop-mode {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 28px -6px rgba(220, 38, 38, .6), inset 0 1px 0 rgba(255,255,255,.35) !important;
+  font-weight: 700;
+}
 #runBtn.stop-mode::after { content: "\25A0"; font-size: 11px; }
+#runBtn.stop-mode:hover:not(:disabled) {
+  background: #b91c1c !important;
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
 
 .composer-foot { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; padding: 0 6px; }
 .coverage-target-row { display: flex; gap: 12px; align-items: center; font-size: 13px; color: var(--text-3); }
@@ -256,7 +267,24 @@ input[type=range]::-moz-range-thumb {
 .status-card.visible { display: block; }
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-.status-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.status-indicator { display: flex; align-items: center; gap: 12px; }
+.btn-stop-status {
+  display: none; align-items: center; gap: 8px;
+  background: #dc2626; color: #ffffff;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 999px; padding: 8px 18px;
+  font-size: 13.5px; font-weight: 650; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, .4);
+  transition: transform .15s, background .15s, box-shadow .2s;
+  min-height: 44px;
+}
+.btn-stop-status:hover {
+  background: #b91c1c; transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(220, 38, 38, .55);
+}
+.btn-stop-status:active { transform: scale(0.97); }
+.btn-stop-status.visible { display: inline-flex; }
 .status-dot {
   width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
   background: var(--amber); box-shadow: 0 0 0 0 rgba(255,199,138,.6);
@@ -474,8 +502,72 @@ td.muted { color: var(--text-2); font-variant-numeric: tabular-nums; }
 .trust-fill { height: 100%; background: var(--grad); border-radius: 999px; }
 
 /* ---------- Footer ---------- */
-footer { text-align: center; color: var(--text-3); font-size: 12px; padding: 0 0 40px; }
-footer em { font-family: var(--serif); font-size: 15px; color: var(--text-2); }
+footer { text-align: center; color: #a49fc0; font-size: 13px; padding: 0 0 40px; }
+footer em { font-family: var(--serif); font-size: 15px; color: var(--text); }
+
+/* ---------- Mobile Sticky Stop Bar ---------- */
+.mobile-sticky-stop {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  z-index: 999;
+  background: rgba(22, 21, 31, 0.95);
+  border: 1px solid rgba(255, 138, 138, 0.35);
+  border-radius: 999px;
+  padding: 8px 10px 8px 18px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(220, 38, 38, 0.2);
+  align-items: center;
+  gap: 14px;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  max-width: calc(100vw - 32px);
+  width: auto;
+}
+.mobile-sticky-stop.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+.mobile-sticky-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--text);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.mobile-sticky-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  animation: ping 1.8s ease-out infinite;
+  flex-shrink: 0;
+}
+.mobile-sticky-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.5);
+  min-height: 48px;
+}
+.mobile-sticky-btn:active {
+  transform: scale(0.97);
+}
 
 /* ---------- Misc ---------- */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -486,19 +578,24 @@ footer em { font-family: var(--serif); font-size: 15px; color: var(--text-2); }
 .prompt-inner input:focus-visible { outline: none; }
 
 @media (max-width: 760px) {
+  body.is-running { padding-bottom: 80px; }
   .wrap { padding: 0 16px; }
   main { padding-top: 44px; }
   .logo-tagline, .header-pills { display: none; }
   .prompt-inner { flex-wrap: wrap; padding: 8px; }
   .prompt-inner > svg { display: none; }
-  .prompt-inner input { padding: 12px; width: 100%; flex-basis: 100%; }
-  #runBtn { width: 100%; justify-content: center; }
-  .composer-foot { flex-direction: column; align-items: flex-start; }
+  .prompt-inner input { padding: 12px; width: 100%; flex-basis: 100%; font-size: 16px; }
+  #runBtn { width: 100%; justify-content: center; min-height: 48px; font-size: 15px; }
+  .btn-stop-status { width: 100%; justify-content: center; min-height: 44px; margin-top: 10px; }
+  .mobile-sticky-stop { display: flex; }
+  .composer-foot { flex-direction: column; align-items: flex-start; gap: 14px; }
   .coverage-target-row { flex-wrap: wrap; }
+  .recipes button { min-height: 44px; padding: 10px 16px; }
   .card-head { padding: 16px; }
   .audit-cells { grid-template-columns: 1fr; }
   .ppi-stat { align-items: flex-start; }
 }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
@@ -570,8 +667,13 @@ footer em { font-family: var(--serif); font-size: 15px; color: var(--text-2); }
   <!-- Status -->
   <div class="card status-card" id="statusCard" role="status" aria-live="polite">
     <div class="status-row">
-      <span class="status-dot" id="statusDot" aria-hidden="true"></span>
-      <span class="status-label">Status: <strong id="statusText">&mdash;</strong></span>
+      <div class="status-indicator">
+        <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+        <span class="status-label">Status: <strong id="statusText">&mdash;</strong></span>
+      </div>
+      <button id="statusStopBtn" class="btn-stop-status" onclick="stopRun()" aria-label="Stop Run">
+        <span aria-hidden="true">&#9632;</span> Stop Run
+      </button>
     </div>
     <div class="stats-grid" id="statsRow"></div>
     <div class="coverage-section" id="coverageSection" style="display:none">
@@ -594,7 +696,7 @@ footer em { font-family: var(--serif); font-size: 15px; color: var(--text-2); }
       <h2 id="resultsTitle">Results</h2>
       <div class="legend-wrap">
         <span id="legendBadges"></span>
-        <a id="exportLink" href="#" target="_blank" aria-label="Export results as CSV">
+        <a id="exportLink" href="#" target="_blank" aria-label="Export CSV">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Export CSV
         </a>
       </div>
@@ -654,6 +756,17 @@ footer em { font-family: var(--serif); font-size: 15px; color: var(--text-2); }
   <div class="drawer-body" id="drawerBody"></div>
 </div>
 
+<!-- Mobile Sticky Stop Bar -->
+<div id="mobileStickyStop" class="mobile-sticky-stop" aria-live="polite">
+  <div class="mobile-sticky-info">
+    <span class="mobile-sticky-dot" aria-hidden="true"></span>
+    <span class="mobile-sticky-text" id="mobileStickyText">Scout is running…</span>
+  </div>
+  <button id="mobileStickyStopBtn" class="mobile-sticky-btn" onclick="stopRun()" aria-label="Stop">
+    <span aria-hidden="true">&#9632;</span> Stop
+  </button>
+</div>
+
 <script>
 const API = "/api";
 const DASH = "—";
@@ -689,25 +802,73 @@ function handleRunBtn() {
 function _setRunMode() {
   const btn = document.getElementById("runBtn");
   btn.textContent = "Run Scout";
+  btn.setAttribute("aria-label", "Run Scout");
   btn.classList.remove("stop-mode");
   btn.disabled = false;
   document.getElementById("prompt").disabled = false;
+
+  const statusStopBtn = document.getElementById("statusStopBtn");
+  if (statusStopBtn) {
+    statusStopBtn.classList.remove("visible");
+    statusStopBtn.disabled = false;
+    statusStopBtn.innerHTML = '<span aria-hidden="true">&#9632;</span> Stop Run';
+  }
+  const mobileSticky = document.getElementById("mobileStickyStop");
+  if (mobileSticky) {
+    mobileSticky.classList.remove("visible");
+    const mBtn = document.getElementById("mobileStickyStopBtn");
+    if (mBtn) {
+      mBtn.disabled = false;
+      mBtn.innerHTML = '<span aria-hidden="true">&#9632;</span> Stop';
+    }
+  }
+  document.body.classList.remove("is-running");
 }
 
 function _setStopMode() {
   const btn = document.getElementById("runBtn");
   btn.textContent = "Stop";
+  btn.setAttribute("aria-label", "Stop");
   btn.classList.add("stop-mode");
   btn.disabled = false;
   document.getElementById("prompt").disabled = true;
+
+  const statusStopBtn = document.getElementById("statusStopBtn");
+  if (statusStopBtn) {
+    statusStopBtn.classList.add("visible");
+    statusStopBtn.disabled = false;
+    statusStopBtn.innerHTML = '<span aria-hidden="true">&#9632;</span> Stop Run';
+  }
+  const mobileSticky = document.getElementById("mobileStickyStop");
+  if (mobileSticky) {
+    mobileSticky.classList.add("visible");
+    const mBtn = document.getElementById("mobileStickyStopBtn");
+    if (mBtn) {
+      mBtn.disabled = false;
+      mBtn.innerHTML = '<span aria-hidden="true">&#9632;</span> Stop';
+    }
+  }
+  document.body.classList.add("is-running");
 }
 
 function _setLoadingMode(label) {
   const btn = document.getElementById("runBtn");
   btn.textContent = label;
+  btn.setAttribute("aria-label", label);
   btn.classList.remove("stop-mode");
   btn.disabled = true;
   document.getElementById("prompt").disabled = true;
+
+  const statusStopBtn = document.getElementById("statusStopBtn");
+  if (statusStopBtn) {
+    statusStopBtn.textContent = label;
+    statusStopBtn.disabled = true;
+  }
+  const mobileStickyBtn = document.getElementById("mobileStickyStopBtn");
+  if (mobileStickyBtn) {
+    mobileStickyBtn.textContent = label;
+    mobileStickyBtn.disabled = true;
+  }
 }
 
 // -- Start run
@@ -802,6 +963,11 @@ function setStatus(status) {
   dot.className = "status-dot " +
     (status === "done" ? "done" : status.startsWith("failed") ? "failed" : "");
   document.getElementById("statusText").textContent = status;
+
+  const stickyText = document.getElementById("mobileStickyText");
+  if (stickyText) {
+    stickyText.textContent = `Status: ${status}`;
+  }
 }
 
 function addCaptureTag(engine, query) {
