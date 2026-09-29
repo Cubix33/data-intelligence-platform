@@ -296,6 +296,44 @@ input[type=range]::-moz-range-thumb {
 .status-label { font-size: 13.5px; color: var(--text-2); }
 .status-label strong { color: var(--text); font-weight: 600; text-transform: capitalize; }
 
+.error-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(255, 138, 138, 0.3);
+  border-radius: var(--r-md);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.error-alert-icon {
+  color: var(--err);
+  display: flex;
+  align-items: center;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.error-alert-body {
+  flex: 1;
+  min-width: 0;
+}
+.error-alert-title {
+  font-size: 13.5px;
+  font-weight: 650;
+  color: #fca5a5;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+.error-alert-msg {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  word-break: break-word;
+}
+
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 22px; }
 .stats-grid:empty { display: none; }
 .stat-card {
@@ -675,6 +713,20 @@ footer em { font-family: var(--serif); font-size: 15px; color: var(--text); }
         <span aria-hidden="true">&#9632;</span> Stop Run
       </button>
     </div>
+    <!-- Error alert banner -->
+    <div id="errorAlert" class="error-alert" style="display:none;" role="alert">
+      <div class="error-alert-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="error-alert-body">
+        <div class="error-alert-title" id="errorAlertTitle">Run Interrupted</div>
+        <div class="error-alert-msg" id="errorAlertMsg"></div>
+      </div>
+    </div>
     <div class="stats-grid" id="statsRow"></div>
     <div class="coverage-section" id="coverageSection" style="display:none">
       <div class="coverage-header">
@@ -888,6 +940,8 @@ async function startRun() {
     const data = await res.json();
     currentRunId = data.id;
     document.getElementById("statusCard").classList.add("visible");
+    const errAlert = document.getElementById("errorAlert");
+    if (errAlert) errAlert.style.display = "none";
     document.getElementById("exportLink").href = `${API}/runs/${currentRunId}/export.csv`;
     document.getElementById("auditPanel").style.display = "block";
     document.getElementById("coverageSection").style.display = "none";
@@ -897,7 +951,7 @@ async function startRun() {
     connectSSE(currentRunId);
     document.getElementById("statusCard").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
-    alert("Could not start run: " + err.message + "\n\nIs the API running at " + API + "?");
+    showError("Could not start run: " + (err.message || err));
     _setRunMode();
   }
 }
@@ -952,9 +1006,48 @@ function handleEvent(ev, runId) {
       _setRunMode();
       break;
     case "error":
-      setStatus("failed " + DASH + " " + ev.message);
+      showError(ev.message);
       _setRunMode();
       break;
+  }
+}
+
+function cleanErrorMessage(str) {
+  if (!str) return "An unexpected error occurred.";
+  str = String(str).trim();
+  const match = str.match(/\{[\s\S]*\}/);
+  if (match) {
+    try {
+      const jsonCandidate = match[0].replace(/'/g, '"');
+      const parsed = JSON.parse(jsonCandidate);
+      const err = parsed.error || parsed;
+      if (err && typeof err === "object") {
+        const msg = err.message || parsed.message;
+        const failedGen = err.failed_generation;
+        if (msg) {
+          const clean = msg.replace(/\s*See 'failed_generation' for more details\./g, "").trim();
+          return failedGen ? `${clean} (${failedGen})` : clean;
+        }
+      }
+      if (typeof err === "string") return err;
+    } catch (_) {
+      const msgMatch = str.match(/['"]message['"]:\s*['"]([^'"]+)['"]/);
+      if (msgMatch) {
+        return msgMatch[1].replace(/\s*See 'failed_generation' for more details\./g, "").trim();
+      }
+    }
+  }
+  return str;
+}
+
+function showError(rawMessage) {
+  setStatus("failed");
+  const msg = cleanErrorMessage(rawMessage);
+  const alertEl = document.getElementById("errorAlert");
+  const msgEl = document.getElementById("errorAlertMsg");
+  if (alertEl && msgEl) {
+    msgEl.textContent = msg;
+    alertEl.style.display = "flex";
   }
 }
 

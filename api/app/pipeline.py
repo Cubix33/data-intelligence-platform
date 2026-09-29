@@ -12,7 +12,9 @@ Each search occasion (query × engine × source_type) is a *capture* logged in t
 
 from __future__ import annotations
 
+import ast
 import asyncio
+import json
 import logging
 import re
 import threading
@@ -118,6 +120,78 @@ def _next_capture_params(
 
 
 # ---------------------------------------------------------------------------
+# Error formatting helper
+# ---------------------------------------------------------------------------
+
+def format_error(exc: Exception) -> str:
+    """Dynamically extracts a clean, human-readable error message without hardcoding."""
+    if exc is None:
+        return "An unknown error occurred."
+
+    # 1. Check for standard structured body on modern API/SDK exceptions (Groq, OpenAI, etc.)
+    body = getattr(exc, "body", None)
+    if isinstance(body, dict):
+        err = body.get("error")
+        if isinstance(err, dict):
+            msg = err.get("message")
+            failed_gen = err.get("failed_generation")
+            if msg and isinstance(msg, str):
+                if failed_gen and isinstance(failed_gen, str) and failed_gen.strip():
+                    clean_msg = msg.replace(" See 'failed_generation' for more details.", "").strip()
+                    return f"{clean_msg} ({failed_gen.strip()})" if clean_msg else failed_gen.strip()
+                return msg.strip()
+        elif isinstance(err, str) and err.strip():
+            return err.strip()
+        if "message" in body and isinstance(body["message"], str):
+            return body["message"].strip()
+
+    # 2. Check for HTTP response JSON (requests, httpx)
+    response = getattr(exc, "response", None)
+    if response is not None and hasattr(response, "json"):
+        try:
+            data = response.json()
+            if isinstance(data, dict):
+                err = data.get("error")
+                if isinstance(err, dict) and isinstance(err.get("message"), str):
+                    return err["message"].strip()
+                if isinstance(data.get("message"), str):
+                    return data["message"].strip()
+        except Exception:
+            pass
+
+    # 3. Handle cases where the exception string itself contains stringified dict/JSON
+    raw = str(exc).strip()
+    if "{" in raw and "}" in raw:
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        candidate = raw[start:end]
+        parsed = None
+        try:
+            parsed = json.loads(candidate)
+        except Exception:
+            try:
+                parsed = ast.literal_eval(candidate)
+            except Exception:
+                pass
+        if isinstance(parsed, dict):
+            err = parsed.get("error")
+            if isinstance(err, dict):
+                msg = err.get("message")
+                failed_gen = err.get("failed_generation")
+                if msg and isinstance(msg, str):
+                    if failed_gen and isinstance(failed_gen, str) and failed_gen.strip():
+                        clean_msg = msg.replace(" See 'failed_generation' for more details.", "").strip()
+                        return f"{clean_msg} ({failed_gen.strip()})" if clean_msg else failed_gen.strip()
+                    return msg.strip()
+            elif isinstance(err, str) and err.strip():
+                return err.strip()
+            if "message" in parsed and isinstance(parsed["message"], str):
+                return parsed["message"].strip()
+
+    return raw or "An unexpected pipeline error occurred."
+
+
+# ---------------------------------------------------------------------------
 # Main pipeline
 # ---------------------------------------------------------------------------
 
@@ -130,8 +204,9 @@ def run_pipeline(run_id: str, prompt: str) -> None:
         dataspec = llm.parse_intent(prompt)
     except Exception as exc:
         logger.exception("intent parsing failed")
-        db.update_run(run_id, status="failed", error=str(exc), finished_at=db.now())
-        _publish_event(run_id, "error", {"message": str(exc)})
+        error_msg = format_error(exc)
+        db.update_run(run_id, status="failed", error=error_msg, finished_at=db.now())
+        _publish_event(run_id, "error", {"message": error_msg})
         return
 
     db.update_run(run_id, data_spec=dataspec.model_dump(), status="discovering")
