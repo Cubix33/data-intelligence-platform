@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: scout-platform
+    runtime: docker
+    plan: free
+    region: oregon
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: JEV_ENABLED
+        value: "true"
+      - key: JEV_API_KEY
+        sync: false
