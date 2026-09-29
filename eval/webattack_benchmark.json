@@ -1,0 +1,59 @@
+{
+  "benchmark_name": "WebAttack End-to-End Live Cloud Deployment Benchmark",
+  "version": "1.0",
+  "timestamp": "2026-09-29T10:15:58Z",
+  "system_under_test": {
+    "target_url": "https://scout-platform.onrender.com",
+    "cloud_provider": "Render.com (Docker Web Service)",
+    "llm_intent_extractor": "Groq API (openai/gpt-oss-120b)",
+    "decision_layer": "TypeSafe AI (Jev System One calibrated RLCD)",
+    "verifier_backend": "jev",
+    "active_gates": ["J1_page_gate", "J2_claim_support", "J3_filter_gate", "robots_txt_compliance"]
+  },
+  "run_telemetry": {
+    "run_id": "e40a1f3bff95",
+    "prompt": "Top open-source vision language models (VLMs) released in 2024 and 2025 with model name, organization, and benchmark score",
+    "status": "done",
+    "started_at": "2026-09-29T09:59:43.938447+00:00",
+    "finished_at": "2026-09-29T10:15:58.506737+00:00",
+    "entities_extracted": 50,
+    "total_sources_evaluated": 66,
+    "total_claims_scored": 270
+  },
+  "source_ledger_breakdown": {
+    "crawled_ok": 30,
+    "jev_j1_page_gate_skipped": 19,
+    "robots_txt_blocked": 12,
+    "empty_page_failed": 5,
+    "relevance_gate_efficiency": "38.7% of irrelevant pages filtered out prior to LLM extraction"
+  },
+  "jev_decision_layer_metrics": {
+    "j1_page_gate_threshold": 0.35,
+    "j1_scores_rejected": [0.12, 0.15, 0.16, 0.17, 0.18, 0.19, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28],
+    "j2_claim_scoring": {
+      "total_claims": 270,
+      "max_support_score": 0.91,
+      "mean_support_score": 0.4376
+    }
+  },
+  "prediction_powered_inference_audit": {
+    "theta_hat": 0.5302,
+    "ci_95_low": 0.5104,
+    "ci_95_high": 0.5499,
+    "standard_error": 0.010071,
+    "total_cells": 270,
+    "human_labeled_cells": 0,
+    "calibrated_accuracy_estimate": "53.0% (95% CI: 51.0% - 55.0%)"
+  },
+  "verified_entities_sample": [
+    "InternVL2-8B-MPO",
+    "InternVL2-Pro",
+    "InternVL2-40B",
+    "InternVL-Chat-V1-2-Plus",
+    "InternViT-6B",
+    "OpenVLA-7B",
+    "OpenVLA-v0.1-7B",
+    "SpatialVLM",
+    "AHA Vision-Language Model"
+  ]
+}

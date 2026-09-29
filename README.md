@@ -2,6 +2,10 @@
 
 > **Code Cubicle 6.0 · Problem Statement 01**
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Cubix33/data-intelligence-platform)
+
+[LIVE LINK](https://scout-platform.onrender.com/)
+
 Scout turns a plain-English data request into a clean, sourced spreadsheet. Describe the dataset you need — companies, jobs, products, research papers, anything — and Scout plans the search, crawls permitted pages, extracts every field with a verbatim quote as proof, deduplicates the records, and hands you a table where **every single cell traces back to the exact sentence it came from**.
 
 It also tells you how complete the result is, using statistics borrowed from ecology, and lets you audit its accuracy without labelling every row.

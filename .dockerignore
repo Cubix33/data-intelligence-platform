@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.venv
+api/.venv
+api/.pytest_cache
+api/__pycache__
+api/app/__pycache__
+api/scout.db
+output/
+deck/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
