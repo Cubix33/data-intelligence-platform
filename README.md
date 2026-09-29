@@ -6,6 +6,10 @@
 
 [LIVE LINK](https://scout-platform.onrender.com/)
 
+[DEMO VIDEO](https://www.loom.com/share/96879afe174c45ee94682f75a4933638)
+
+<img width="3200" height="1800" alt="scout-vs-search" src="https://github.com/user-attachments/assets/66335e57-39c8-47b2-90be-caaac68bf99c" />
+
 Scout turns a plain-English data request into a clean, sourced spreadsheet. Describe the dataset you need — companies, jobs, products, research papers, anything — and Scout plans the search, crawls permitted pages, extracts every field with a verbatim quote as proof, deduplicates the records, and hands you a table where **every single cell traces back to the exact sentence it came from**.
 
 It also tells you how complete the result is, using statistics borrowed from ecology, and lets you audit its accuracy without labelling every row.
