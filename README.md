@@ -80,7 +80,9 @@ Your prompt
    │
    ▼
 [3] Compliance gate (compliance.py)
-    Checks robots.txt before fetching any URL.
+    Checks robots.txt and blocks destinations that resolve to loopback, private,
+    link-local, or other non-public IPs. Redirects, pagination, robots.txt, and
+    browser-rendered page requests are checked before each connection and pinned.
     Every decision — allowed or blocked — is logged to the Source Ledger.
    │
    ▼
@@ -217,7 +219,7 @@ Open `http://127.0.0.1:8000/` in a browser. The API serves the dashboard from `w
 
 ```bash
 cd api
-pytest app/test_jev.py -v
+pytest app -v
 ```
 
 ---
@@ -248,8 +250,9 @@ data-intelligence-platform/
 │   │   ├── main.py                # FastAPI app: POST /api/runs, SSE stream, CSV export
 │   │   │
 │   │   ├── llm.py                 # Groq: intent parsing + record extraction
-│   │   ├── compliance.py          # robots.txt gate — checked before every fetch
-│   │   ├── fetcher.py             # httpx + BeautifulSoup, Playwright fallback
+│   │   ├── compliance.py          # robots.txt and safe-destination checks
+│   │   ├── fetcher.py             # guarded HTTP fetching, parsing, Playwright fallback
+│   │   ├── ssrf.py                # public-IP validation and pinned outbound requests
 │   │   │
 │   │   ├── jev.py                 # Jev client: J1 page gate, J2 claim support, J3 filter check
 │   │   ├── verifier.py            # DeBERTa NLI fallback for claim support (no Jev key)
@@ -262,7 +265,8 @@ data-intelligence-platform/
 │   │   ├── coverage.py            # Chao2 estimator + bootstrap CI
 │   │   ├── ppi.py                 # Prediction-Powered Inference accuracy audit
 │   │   │
-│   │   └── test_jev.py            # Unit tests for the Jev client (uses a fake transport)
+│   │   ├── test_jev.py            # Unit tests for the Jev client (uses a fake transport)
+│   │   └── test_ssrf.py           # Outbound destination and redirect safety tests
 │   │
 │   └── requirements.txt
 │

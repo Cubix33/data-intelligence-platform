@@ -13,7 +13,7 @@ import logging
 import urllib.robotparser
 from urllib.parse import urlparse
 
-from . import config
+from . import config, ssrf
 
 logger = logging.getLogger("scout.compliance")
 
@@ -52,10 +52,18 @@ class _FailOpenRobotParser(urllib.robotparser.RobotFileParser):
 @functools.lru_cache(maxsize=256)
 def _parser_for(domain: str, scheme: str) -> _FailOpenRobotParser:
     rp = _FailOpenRobotParser()
-    rp.set_url(f"{scheme}://{domain}/robots.txt")
+    robots_url = f"{scheme}://{domain}/robots.txt"
+    rp.set_url(robots_url)
     try:
-        rp.read()
-    except Exception:  # noqa: BLE001 - robots.txt fetch is best-effort
+        response = ssrf.safe_get_sync(robots_url)
+        if response.status_code >= 400:
+            rp.allow_all = True
+        else:
+            rp.parse(response.text.splitlines())
+    except ssrf.UnsafeDestination as exc:
+        logger.warning("blocked unsafe robots.txt destination %s: %s", robots_url, exc)
+        rp.disallow_all = True
+    except Exception:  # noqa: BLE001 - preserve best-effort behavior for network failures
         logger.info("could not read robots.txt for %s, failing open", domain)
         rp.allow_all = True
     return rp
@@ -65,12 +73,18 @@ def is_allowed(url: str) -> tuple[bool, str]:
     """Return (allowed, reason). reason is only set when allowed is False."""
     parsed = urlparse(url)
     domain = parsed.netloc.lower()
+    host = (parsed.hostname or "").lower().rstrip(".")
 
-    if not domain or not parsed.scheme.startswith("http"):
+    if not domain or parsed.scheme.lower() not in ("http", "https"):
         return False, "not a fetchable http(s) URL"
 
-    if any(domain == d or domain.endswith("." + d) for d in DENYLIST):
+    if any(host == d or host.endswith("." + d) for d in DENYLIST):
         return False, "domain is on the deny list (login-walled / ToS-sensitive)"
+
+    try:
+        ssrf.validate_url_sync(url)
+    except ssrf.UnsafeDestination as exc:
+        return False, f"unsafe destination: {exc}"
 
     rp = _parser_for(domain, parsed.scheme)
     try:

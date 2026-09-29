@@ -27,7 +27,7 @@ from urllib.parse import urljoin, urlparse, urlunparse, parse_qs, urlencode
 import httpx
 from bs4 import BeautifulSoup
 
-from . import config
+from . import config, ssrf
 
 logger = logging.getLogger("scout.fetch")
 
@@ -186,14 +186,13 @@ async def fetch_chunks(url: str, _depth: int = 0) -> list[str]:
         await _domain_delay(domain, delay)
 
         try:
-            async with httpx.AsyncClient(
+            async with ssrf.create_async_client(
                 timeout=15.0,
-                follow_redirects=True,
                 headers={"User-Agent": config.USER_AGENT},
             ) as client:
-                resp = await client.get(url)
+                resp = await ssrf.safe_request(client, url)
                 resp.raise_for_status()
-        except httpx.HTTPError as exc:
+        except (httpx.HTTPError, ssrf.UnsafeDestination) as exc:
             logger.info("fetch failed %s: %s", url, exc)
             return []
 
@@ -232,6 +231,61 @@ async def fetch_chunks(url: str, _depth: int = 0) -> list[str]:
 # Playwright fallback (optional dependency)
 # ---------------------------------------------------------------------------
 
+async def _guard_playwright_request(route, client) -> None:
+    """Send every browser HTTP request through the checked, IP-pinned client."""
+    request = route.request
+    scheme = urlparse(request.url).scheme.lower()
+    if scheme in ("data", "blob", "about"):
+        await route.continue_()
+        return
+    if scheme not in ("http", "https"):
+        await route.abort("blockedbyclient")
+        return
+
+    blocked_request_headers = {
+        "host", "content-length", "connection", "proxy-connection",
+        "transfer-encoding", "accept-encoding", "proxy-authorization",
+    }
+    request_headers = {
+        key: value for key, value in request.headers.items()
+        if key.lower() not in blocked_request_headers
+    }
+    response = None
+    try:
+        response = await ssrf.safe_request(
+            client,
+            request.url,
+            method=request.method,
+            headers=request_headers,
+            content=request.post_data_buffer,
+            follow_redirects=False,
+        )
+        response_headers = {
+            key: value for key, value in response.headers.items()
+            if key.lower() not in {
+                "content-encoding", "content-length", "transfer-encoding",
+                "connection", "keep-alive", "proxy-authenticate",
+                "proxy-authorization", "te", "trailer", "upgrade",
+            }
+        }
+        await route.fulfill(
+            status=response.status_code,
+            headers=response_headers,
+            body=await response.aread(),
+        )
+    except Exception as exc:
+        logger.info("blocked unsafe Playwright request %s: %s", request.url, exc)
+        await route.abort("blockedbyclient")
+    finally:
+        if response is not None:
+            await response.aclose()
+
+
+async def _block_playwright_websocket(web_socket_route) -> None:
+    """Close browser websocket connections so they cannot bypass HTTP routing."""
+    await web_socket_route.close(code=1008, reason="websocket connections are disabled")
+
+
 async def _playwright_fetch(url: str) -> str | None:
     """Render the page with headless Chromium and return its text.
 
@@ -245,12 +299,30 @@ async def _playwright_fetch(url: str) -> str | None:
         return None
 
     try:
-        async with async_playwright() as pw:
-            browser = await pw.chromium.launch(headless=True)
-            page    = await browser.new_page()
-            await page.goto(url, wait_until="networkidle", timeout=20_000)
-            html = await page.content()
-            await browser.close()
+        async with ssrf.create_async_client(timeout=15.0) as client:
+            async with async_playwright() as pw:
+                browser = await pw.chromium.launch(headless=True)
+                context = await browser.new_context(service_workers="block")
+                route_web_socket = getattr(context, "route_web_socket", None)
+                if route_web_socket is None:
+                    logger.info("Playwright lacks websocket routing; skipping browser fallback")
+                    await browser.close()
+                    return None
+                await route_web_socket("**/*", _block_playwright_websocket)
+                page = await context.new_page()
+                await page.route("**/*", lambda route: _guard_playwright_request(route, client))
+                # Page JavaScript should not be able to open a raw socket that bypasses
+                # the routed HTTP requests above.
+                await page.add_init_script("""(() => {
+                    for (const name of ["WebSocket", "RTCPeerConnection", "webkitRTCPeerConnection"]) {
+                      try { Object.defineProperty(globalThis, name, { value: undefined }); } catch (_) {}
+                    }
+                  })();""")
+                try:
+                    await page.goto(url, wait_until="networkidle", timeout=20_000)
+                    html = await page.content()
+                finally:
+                    await browser.close()
         return _clean_html(html)
     except Exception as exc:
         logger.info("playwright fetch failed for %s: %s", url, exc)
