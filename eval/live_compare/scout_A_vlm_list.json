@@ -1,0 +1,445 @@
+{
+ "id": "844aaf84ffe9",
+ "prompt": "Top open-source vision language models released in 2024 and 2025 with model name, organization, and benchmark score",
+ "status": "done",
+ "data_spec": {
+  "entity": "vision_language_model",
+  "summary": "A collection of open-source vision-language models released in 2024\u20112025, capturing their name, releasing organization, release year, benchmark used, and achieved score.",
+  "fields": [
+   {
+    "name": "model_name",
+    "description": "Name of the vision\u2011language model",
+    "type": "string",
+    "required": true
+   },
+   {
+    "name": "organization",
+    "description": "Organization or team that released the model",
+    "type": "string",
+    "required": true
+   },
+   {
+    "name": "release_year",
+    "description": "Year the model was publicly released (2024 or 2025)",
+    "type": "number",
+    "required": true
+   },
+   {
+    "name": "benchmark_name",
+    "description": "Name of the benchmark on which the model was evaluated (e.g., VQAv2, COCO Caption)",
+    "type": "string",
+    "required": true
+   },
+   {
+    "name": "benchmark_score",
+    "description": "Score achieved on the benchmark (higher indicates better performance)",
+    "type": "number",
+    "required": true
+   },
+   {
+    "name": "model_url",
+    "description": "URL to the model repository, release page, or documentation",
+    "type": "url",
+    "required": false
+   }
+  ],
+  "filters": [
+   "release_year:2024-2025",
+   "benchmark_score:>0"
+  ],
+  "search_queries": [
+   "site:github.com \"vision language model\" 2024 \"open source\" benchmark",
+   "2024 \"vision-language model\" \"VQAv2\" score",
+   "2025 \"vision language\" model site:arxiv.org",
+   "open-source multimodal model 2025 performance benchmark",
+   "\"vision language model\" \"GitHub\" 2024"
+  ],
+  "target_count": 20,
+  "target_coverage": 0.8
+ },
+ "stats": {
+  "urls_discovered": 36,
+  "urls_skipped_compliance": 0,
+  "pages_fetched": 26,
+  "pages_failed": 10,
+  "records_found": 0,
+  "records_after_dedupe": 0,
+  "captures_run": 12,
+  "coverage_estimate": null,
+  "coverage_ci_low": null,
+  "coverage_ci_high": null,
+  "s_hat": null,
+  "jev_chunks_gated": 151,
+  "jev_chunks_total": 153,
+  "jev_records_dropped": 0,
+  "conflicts_resolved": 0
+ },
+ "error": null,
+ "created_at": "2026-10-01T03:52:16.380321+00:00",
+ "finished_at": "2026-10-01T03:54:33.128273+00:00",
+ "records": [],
+ "sources": [
+  {
+   "id": "844aaf84ffe9:a6cd786d85c14130:https://my.clevelandclinic.org/health/articles/21204-vision",
+   "run_id": "844aaf84ffe9",
+   "url": "https://my.clevelandclinic.org/health/articles/21204-vision",
+   "domain": "my.clevelandclinic.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:40.541113+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:a6cd786d85c14130:https://www.merriam-webster.com/dictionary/vision",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.merriam-webster.com/dictionary/vision",
+   "domain": "www.merriam-webster.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:40.859497+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:a6cd786d85c14130:https://visionconcern.com/blog/vision-chart",
+   "run_id": "844aaf84ffe9",
+   "url": "https://visionconcern.com/blog/vision-chart",
+   "domain": "visionconcern.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:44.289350+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:a6cd786d85c14130:https://www.cdc.gov/vision-health/prevention/taking-care-of-your-eyes.html",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.cdc.gov/vision-health/prevention/taking-care-of-your-eyes.html",
+   "domain": "www.cdc.gov",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:45.611539+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:a6cd786d85c14130:https://visionsource.com/",
+   "run_id": "844aaf84ffe9",
+   "url": "https://visionsource.com/",
+   "domain": "visionsource.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:46.204118+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:a6cd786d85c14130:https://www.nei.nih.gov/eye-health-information/eye-conditions-and-diseases/low-vision",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.nei.nih.gov/eye-health-information/eye-conditions-and-diseases/low-vision",
+   "domain": "www.nei.nih.gov",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:47.610971+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:29ac47df0a6640b1:https://my.clevelandclinic.org/health/articles/21204-vision",
+   "run_id": "844aaf84ffe9",
+   "url": "https://my.clevelandclinic.org/health/articles/21204-vision",
+   "domain": "my.clevelandclinic.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:53.300632+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:29ac47df0a6640b1:https://www.merriam-webster.com/dictionary/vision",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.merriam-webster.com/dictionary/vision",
+   "domain": "www.merriam-webster.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:53.515394+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:29ac47df0a6640b1:https://visionconcern.com/blog/vision-chart",
+   "run_id": "844aaf84ffe9",
+   "url": "https://visionconcern.com/blog/vision-chart",
+   "domain": "visionconcern.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:53.621399+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:29ac47df0a6640b1:https://www.cdc.gov/vision-health/prevention/taking-care-of-your-eyes.html",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.cdc.gov/vision-health/prevention/taking-care-of-your-eyes.html",
+   "domain": "www.cdc.gov",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:54.222417+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:29ac47df0a6640b1:https://visionsource.com/",
+   "run_id": "844aaf84ffe9",
+   "url": "https://visionsource.com/",
+   "domain": "visionsource.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:54.338041+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:29ac47df0a6640b1:https://www.nei.nih.gov/eye-health-information/eye-conditions-and-diseases/low-vision",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.nei.nih.gov/eye-health-information/eye-conditions-and-diseases/low-vision",
+   "domain": "www.nei.nih.gov",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:52:54.526012+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:347b1c7df48c4107:https://my.clevelandclinic.org/health/articles/21204-vision",
+   "run_id": "844aaf84ffe9",
+   "url": "https://my.clevelandclinic.org/health/articles/21204-vision",
+   "domain": "my.clevelandclinic.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:00.443773+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:347b1c7df48c4107:https://www.merriam-webster.com/dictionary/vision",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.merriam-webster.com/dictionary/vision",
+   "domain": "www.merriam-webster.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:00.584274+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:347b1c7df48c4107:https://visionconcern.com/blog/vision-chart",
+   "run_id": "844aaf84ffe9",
+   "url": "https://visionconcern.com/blog/vision-chart",
+   "domain": "visionconcern.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:00.720151+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:347b1c7df48c4107:https://www.cdc.gov/vision-health/prevention/taking-care-of-your-eyes.html",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.cdc.gov/vision-health/prevention/taking-care-of-your-eyes.html",
+   "domain": "www.cdc.gov",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:01.870896+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:347b1c7df48c4107:https://visionsource.com/",
+   "run_id": "844aaf84ffe9",
+   "url": "https://visionsource.com/",
+   "domain": "visionsource.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:01.963912+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:347b1c7df48c4107:https://www.nei.nih.gov/eye-health-information/eye-conditions-and-diseases/low-vision",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.nei.nih.gov/eye-health-information/eye-conditions-and-diseases/low-vision",
+   "domain": "www.nei.nih.gov",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:02.103064+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:95733c4e748c4160:https://en.wikipedia.org/wiki/2024",
+   "run_id": "844aaf84ffe9",
+   "url": "https://en.wikipedia.org/wiki/2024",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.03)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:21.379732+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:95733c4e748c4160:https://en.wikipedia.org/wiki/2024_United_States_presidential_election",
+   "run_id": "844aaf84ffe9",
+   "url": "https://en.wikipedia.org/wiki/2024_United_States_presidential_election",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:42.514849+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:95733c4e748c4160:https://simple.wikipedia.org/wiki/2024",
+   "run_id": "844aaf84ffe9",
+   "url": "https://simple.wikipedia.org/wiki/2024",
+   "domain": "simple.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:51.448644+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:95733c4e748c4160:https://www.calendar-365.com/2024-calendar.html",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.calendar-365.com/2024-calendar.html",
+   "domain": "www.calendar-365.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:55.447627+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:95733c4e748c4160:https://www.thefactsite.com/year/2024/",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.thefactsite.com/year/2024/",
+   "domain": "www.thefactsite.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.03)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:57.608819+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:95733c4e748c4160:https://www.timeanddate.com/calendar/?year=2024&country=1",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.timeanddate.com/calendar/?year=2024&country=1",
+   "domain": "www.timeanddate.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:58.053948+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:70c8ca8c3e9240ea:https://arxiv.org/html/2501.09672v1",
+   "run_id": "844aaf84ffe9",
+   "url": "https://arxiv.org/html/2501.09672v1",
+   "domain": "arxiv.org",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:53:59.965968+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:70c8ca8c3e9240ea:https://proceedings.neurips.cc/paper_files/paper/2024/file/a03037317560b8c5f2fb4b6466d4c439-Paper-Conference.pdf",
+   "run_id": "844aaf84ffe9",
+   "url": "https://proceedings.neurips.cc/paper_files/paper/2024/file/a03037317560b8c5f2fb4b6466d4c439-Paper-Conference.pdf",
+   "domain": "proceedings.neurips.cc",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:00.529528+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:70c8ca8c3e9240ea:https://www.sciencedirect.com/org/science/article/pii/S1546221826007137",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.sciencedirect.com/org/science/article/pii/S1546221826007137",
+   "domain": "www.sciencedirect.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:01.018052+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:70c8ca8c3e9240ea:https://medium.com/@neel26d/a-survey-on-vision-language-models-c84c9b07e40a",
+   "run_id": "844aaf84ffe9",
+   "url": "https://medium.com/@neel26d/a-survey-on-vision-language-models-c84c9b07e40a",
+   "domain": "medium.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:01.250780+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:70c8ca8c3e9240ea:https://viso.ai/deep-learning/vision-language-models/",
+   "run_id": "844aaf84ffe9",
+   "url": "https://viso.ai/deep-learning/vision-language-models/",
+   "domain": "viso.ai",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:02.194352+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:70c8ca8c3e9240ea:https://github.com/SufyanDanish/VLM-Survey-",
+   "run_id": "844aaf84ffe9",
+   "url": "https://github.com/SufyanDanish/VLM-Survey-",
+   "domain": "github.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.20)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:07.783756+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:058519470d9a4384:https://en.wikipedia.org/wiki/2024",
+   "run_id": "844aaf84ffe9",
+   "url": "https://en.wikipedia.org/wiki/2024",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.03)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:26.218180+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:058519470d9a4384:https://en.wikipedia.org/wiki/2024_United_States_presidential_election",
+   "run_id": "844aaf84ffe9",
+   "url": "https://en.wikipedia.org/wiki/2024_United_States_presidential_election",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:28.039098+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:058519470d9a4384:https://simple.wikipedia.org/wiki/2024",
+   "run_id": "844aaf84ffe9",
+   "url": "https://simple.wikipedia.org/wiki/2024",
+   "domain": "simple.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:32.166146+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:058519470d9a4384:https://www.calendar-365.com/2024-calendar.html",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.calendar-365.com/2024-calendar.html",
+   "domain": "www.calendar-365.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:32.687976+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:058519470d9a4384:https://www.thefactsite.com/year/2024/",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.thefactsite.com/year/2024/",
+   "domain": "www.thefactsite.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.03)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:32.802062+00:00"
+  },
+  {
+   "id": "844aaf84ffe9:058519470d9a4384:https://www.timeanddate.com/calendar/?year=2024&country=1",
+   "run_id": "844aaf84ffe9",
+   "url": "https://www.timeanddate.com/calendar/?year=2024&country=1",
+   "domain": "www.timeanddate.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:33.116203+00:00"
+  }
+ ],
+ "_elapsed_s": 142,
+ "_prompt": "Top open-source vision language models released in 2024 and 2025 with model name, organization, and benchmark score"
+}

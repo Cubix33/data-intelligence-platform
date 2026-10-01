@@ -101,6 +101,20 @@ def resolve_conflicts(
     if not claims:
         return claims
 
+    # One vote per source URL: a page that lists many values for one cell (e.g. every
+    # historical version on a download page) is one source, not many agreeing ones.
+    # Keep that page's best-supported claim; ties go to the earliest claim.
+    by_url: dict[str, dict] = {}
+    for c in claims:
+        url = c.get("source_url") or ""
+        best = by_url.get(url)
+        if best is None or (c.get("support_score") or 0.0) > (best.get("support_score") or 0.0):
+            by_url[url] = c
+    voters = list(by_url.values())
+    for c in claims:
+        c["kbt_prob"] = 0.0
+    claims_all, claims = claims, voters
+
     # Group claims by normalized value
     from .entity_resolution import normalize_name  # avoid circular at module level
     value_claims: dict[str, list[dict]] = defaultdict(list)
@@ -112,7 +126,7 @@ def resolve_conflicts(
         # No conflict — every claim agrees; mark them all high probability
         for c in claims:
             c["kbt_prob"] = 1.0
-        return claims
+        return claims_all
 
     # Initial domain trust
     trust: dict[str, float] = dict(initial_trust or {})
@@ -163,7 +177,7 @@ def resolve_conflicts(
         v = normalize_name(c.get("value_norm") or c.get("value_raw") or "")
         c["kbt_prob"] = round(value_prob.get(v, 0.0), 4)
 
-    return claims
+    return claims_all
 
 
 # ---------------------------------------------------------------------------

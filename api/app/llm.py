@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import itertools
 import json
+import re
 import logging
 import threading
 import time
@@ -87,39 +88,46 @@ def _chat_json(model: str, system: str, user: str, schema: dict, schema_name: st
     }
 
     last_exc: Exception | None = None
-    for _attempt in range(n * 2):  # two full passes over the key pool
-        with _lock:
-            idx = next(_client_cycle)
-            ready_at = _cooldowns.get(idx, 0.0)
-        now = time.monotonic()
-        if ready_at > now and n > 1:
-            continue  # skip a key still in cooldown while others are available
-
-        try:
-            response = _clients[idx].chat.completions.create(
-                model=model, temperature=0, max_tokens=max_tokens,
-                messages=messages, response_format=response_format,
-            )
-            return json.loads(response.choices[0].message.content)
-        except groq.RateLimitError as exc:
-            last_exc = exc
-            # Cool this key down; Groq's error usually names a retry-after in
-            # its message, but we don't parse it — a flat 15s keeps this simple.
+    # Rate-limited pages used to be dropped outright; wait out the cooldown and retry
+    # (up to 3 rounds) so a busy key pool slows a run down instead of losing data.
+    for _round in range(3):
+        for _attempt in range(n * 2):  # two full passes over the key pool
             with _lock:
-                _cooldowns[idx] = time.monotonic() + 15.0
-            logger.info("llm: key #%d rate-limited, rotating (%s)", idx, exc)
-            continue
-        except Exception as exc:  # noqa: BLE001
-            last_exc = exc
-            logger.warning("llm: call failed on key #%d: %s", idx, exc)
-            continue
+                idx = next(_client_cycle)
+                ready_at = _cooldowns.get(idx, 0.0)
+            now = time.monotonic()
+            if ready_at > now and n > 1:
+                continue  # skip a key still in cooldown while others are available
 
-    if all(_cooldowns.get(i, 0.0) > time.monotonic() for i in range(n)):
-        # Every key is cooling down — wait out the shortest one rather than
-        # raising immediately, so a single tight loop doesn't burn the whole pool.
-        wait = max(0.5, min(_cooldowns.values()) - time.monotonic())
-        logger.info("llm: all %d key(s) rate-limited, waiting %.1fs", n, wait)
-        _cancel_event.wait(timeout=min(wait, 15.0))
+            try:
+                response = _clients[idx].chat.completions.create(
+                    model=model, temperature=0, max_tokens=max_tokens,
+                    messages=messages, response_format=response_format,
+                )
+                return json.loads(response.choices[0].message.content)
+            except groq.RateLimitError as exc:
+                last_exc = exc
+                # Cool this key down; Groq's error usually names a retry-after in
+                # its message, but we don't parse it — a flat 15s keeps this simple.
+                with _lock:
+                    _cooldowns[idx] = time.monotonic() + 15.0
+                logger.info("llm: key #%d rate-limited, rotating (%s)", idx, exc)
+                continue
+            except Exception as exc:  # noqa: BLE001
+                last_exc = exc
+                logger.warning("llm: call failed on key #%d: %s", idx, exc)
+                continue
+
+        if not isinstance(last_exc, groq.RateLimitError) or _cancel_event.is_set():
+            break  # only rate limits are worth waiting out
+        if "per day" in str(last_exc).lower():
+            break  # daily quota (TPD) won't reset in seconds — fail fast instead of stalling the run
+        if all(_cooldowns.get(i, 0.0) > time.monotonic() for i in range(n)):
+            # Every key is cooling down — wait out the shortest one rather than
+            # raising immediately, so a single tight loop doesn't burn the whole pool.
+            wait = max(0.5, min(_cooldowns.values()) - time.monotonic())
+            logger.info("llm: all %d key(s) rate-limited, waiting %.1fs", n, wait)
+            _cancel_event.wait(timeout=min(wait, 15.0))
 
     raise last_exc or RuntimeError("Groq call failed with no configured keys")
 
@@ -134,10 +142,15 @@ first field a primary identifying field (a name or title an entity is known by).
 high-signal web search queries that would surface pages listing or describing these entities. Keep
 field names snake_case. Prefer fields that are actually likely to be stated on public web pages.
 
-IMPORTANT — search query strategy: avoid job boards (LinkedIn, Glassdoor, Indeed, Wellfound,
-Naukri, Internshala) and login-walled sites — they block crawlers. Instead write queries that
-target open, crawlable sources: company career pages (site:company.com/careers), GitHub profiles,
-tech blogs, news articles, directories, conference speaker lists, funding announcements, etc."""
+IMPORTANT — search query strategy: write plain, natural-language keyword queries (4-10 words) the way a
+person would type into a search engine, e.g. 'Indian edtech startups seed funding 2024 investors' or
+'open source vision language models 2025 benchmark comparison'. Do NOT use quotation marks, boolean
+operators, or more than one site: filter per query (most queries should have none) — over-constrained queries
+return nothing on the search engines we use. Make the queries genuinely different angles (list/roundup
+articles, news announcements, official directories or leaderboards, primary sources) rather than rewordings.
+Avoid job boards (LinkedIn, Glassdoor, Indeed, Wellfound, Naukri, Internshala) and login-walled sites —
+they block crawlers. Always include the entity type and the key filters (year, country, topic) in the query
+so results stay on-topic."""
 
 # Groq structured outputs don't support minItems/maxItems — pydantic enforces those instead.
 _INTENT_SCHEMA = {
@@ -199,7 +212,33 @@ def discover_urls(dataspec: "DataSpec") -> list[dict]:
     return [{"url": u, "title": t} for u, t in seen.items()]
 
 
+_SITE_OP = re.compile(r"\bsite:\S+", re.IGNORECASE)
+_BOOL_OP = re.compile(r"\b(AND|OR|NOT)\b")
+MIN_RESULTS_BEFORE_RELAX = 3
+
+
+def relax_query(query: str) -> str:
+    """Strip search operators that over-constrain the engine (quotes, site:, AND/OR/NOT, -term)."""
+    q = _SITE_OP.sub(" ", query)
+    q = q.replace('"', " ").replace("“", " ").replace("”", " ")
+    q = _BOOL_OP.sub(" ", q)
+    q = re.sub(r"(^|\s)-\w+", " ", q)
+    return re.sub(r"\s+", " ", q).strip()
+
+
 def discover_urls_for_query(dataspec: "DataSpec", query: str, engine: str = "ddg") -> list[dict]:
+    """Search ``query``; if the engine returns too little, retry with a relaxed (operator-free) query."""
+    found = _discover_once(dataspec, query, engine)
+    if len(found) < MIN_RESULTS_BEFORE_RELAX:
+        relaxed = relax_query(query)
+        if relaxed and relaxed != query:
+            logger.info("search: %d result(s) for %r — retrying relaxed %r", len(found), query, relaxed)
+            seen = {c["url"] for c in found}
+            found += [c for c in _discover_once(dataspec, relaxed, engine) if c["url"] not in seen]
+    return found
+
+
+def _discover_once(dataspec: "DataSpec", query: str, engine: str = "ddg") -> list[dict]:
     """Run a single search query on the specified engine and return candidate URLs.
 
     Supported engines:
@@ -225,14 +264,22 @@ def discover_urls_for_query(dataspec: "DataSpec", query: str, engine: str = "ddg
 
 
 def _discover_ddg(query: str, seen: dict) -> None:
-    try:
-        results = DDGS().text(query, max_results=config.SEARCH_RESULTS_PER_QUERY)
+    # ddgs scrapes DuckDuckGo and fails transiently (rate limits, timeouts) from cloud IPs;
+    # one backed-off retry recovers most of those. "No results found" is final, not retried.
+    for attempt in range(2):
+        try:
+            results = DDGS().text(query, max_results=config.SEARCH_RESULTS_PER_QUERY)
+        except Exception as exc:  # noqa: BLE001
+            if "no results" in str(exc).lower() or attempt == 1:
+                logger.warning("DuckDuckGo search failed for %r: %s", query, exc)
+                return
+            time.sleep(2.0)
+            continue
         for r in results:
             url = r.get("href") or r.get("url")
             if url and url not in seen:
                 seen[url] = r.get("title") or url
-    except Exception as exc:
-        logger.warning("DuckDuckGo search failed for %r: %s", query, exc)
+        return
 
 
 def _discover_brave(query: str, seen: dict) -> None:
@@ -276,7 +323,45 @@ def _discover_searxng(query: str, seen: dict) -> None:
                 seen[url] = r.get("title") or url
     except Exception as exc:
         logger.warning("SearXNG search failed for %r: %s", query, exc)
-        _discover_ddg(query, seen)# ---------------------------------------------------------------------------
+        _discover_ddg(query, seen)
+
+
+_REPLAN_SYSTEM = """You are improving a web search plan that is not surfacing relevant pages.
+Given the data request, the queries already tried, and the entities found so far, write 3 NEW plain
+natural-language search queries (4-10 words, no quotation marks, no site: or boolean operators) that approach
+the topic from a different angle: list/roundup articles, news, official directories or leaderboards, primary
+sources. Keep the entity type and key filters (year, country, topic) in each query. Never repeat a tried query."""
+
+_REPLAN_SCHEMA = {
+    "type": "object",
+    "properties": {"search_queries": {"type": "array", "items": {"type": "string"}}},
+    "required": ["search_queries"],
+    "additionalProperties": False,
+}
+
+
+def replan_queries(dataspec: "DataSpec", tried: list[str], found_entities: list[str]) -> list[str]:
+    """Ask the intent model for fresh queries when a capture surfaced nothing new."""
+    tried_lines = "\n".join(f"- {q}" for q in tried[-12:])
+    user = "\n".join([
+        f"Request: {dataspec.summary}",
+        f"Entity: {dataspec.entity}",
+        f"Filters: {'; '.join(dataspec.filters) or '(none)'}",
+        f"Queries already tried:\n{tried_lines}",
+        f"Entities found so far: {', '.join(found_entities[:20]) or '(none)'}",
+    ])
+    parsed = _chat_json(config.MODEL_INTENT, _REPLAN_SYSTEM, user, _REPLAN_SCHEMA, "replan", max_tokens=600)
+    seen = {q.lower() for q in tried}
+    out: list[str] = []
+    for q in parsed.get("search_queries", []):
+        q = relax_query(str(q))
+        if q and q.lower() not in seen:
+            out.append(q)
+            seen.add(q.lower())
+    return out[:3]
+
+
+# ---------------------------------------------------------------------------
 # 3. Per-page extraction, with mandatory evidence quotes
 # ---------------------------------------------------------------------------
 
@@ -284,7 +369,9 @@ EXTRACT_SYSTEM = """You extract structured records from a single web page for a 
 Only extract records that clearly match the entity type and satisfy the stated filters. Every field
 value you output MUST be backed by a verbatim quote from the page text, placed in the matching
 "evidence" slot — copy the exact wording, don't paraphrase. If a field isn't stated on the page, set
-both the value and its evidence to null. Never invent values. If the page lists none of the requested
+both the value and its evidence to null. Never invent values. Use the entity's short canonical name as its primary value (no taglines, slogans, or
+parenthetical asides). When a page lists many values for one entity over time (e.g. every historical version
+or past editions), return only the current / most recent one unless the filters ask for history. If the page lists none of the requested
 entities, return an empty records list and set page_is_relevant to false."""
 
 

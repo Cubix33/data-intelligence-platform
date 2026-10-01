@@ -164,6 +164,18 @@ def _next_page_url(html: str, current_url: str) -> str | None:
 # Core fetch function (async)
 # ---------------------------------------------------------------------------
 
+def _decode(resp) -> str:
+    """Decode a response without producing U+FFFD: honour the declared charset, else try UTF-8, else cp1252."""
+    data = resp.content
+    declared = resp.charset_encoding
+    for enc in ([declared] if declared else []) + ["utf-8"]:
+        try:
+            return data.decode(enc)
+        except (UnicodeDecodeError, LookupError):
+            continue
+    return data.decode("cp1252", errors="replace")
+
+
 async def fetch_chunks(url: str, _depth: int = 0) -> list[str]:
     """Fetch a URL (and pagination) and return a list of text chunks ready for extraction.
 
@@ -200,7 +212,7 @@ async def fetch_chunks(url: str, _depth: int = 0) -> list[str]:
     if "html" not in content_type and "text" not in content_type:
         return []
 
-    raw_html = resp.text
+    raw_html = _decode(resp)
     text = _clean_html(raw_html)
 
     # Playwright fallback for JS-heavy pages

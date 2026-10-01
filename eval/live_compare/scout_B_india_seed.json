@@ -1,0 +1,513 @@
+{
+ "id": "885b1d979839",
+ "prompt": "Indian edtech startups that raised seed funding in 2024 with company name, amount raised, and lead investor",
+ "status": "done",
+ "data_spec": {
+  "entity": "Indian edtech startup",
+  "summary": "List of Indian edtech startups that secured seed\u2011stage funding in 2024, capturing key details about the round.",
+  "fields": [
+   {
+    "name": "company_name",
+    "description": "Official name of the startup",
+    "type": "string",
+    "required": true
+   },
+   {
+    "name": "amount_raised_usd",
+    "description": "Total seed capital raised, expressed in US dollars",
+    "type": "number",
+    "required": true
+   },
+   {
+    "name": "lead_investor",
+    "description": "Primary investor or venture firm leading the seed round",
+    "type": "string",
+    "required": true
+   },
+   {
+    "name": "funding_round",
+    "description": "Label of the financing round (e.g., Seed)",
+    "type": "string",
+    "required": true
+   },
+   {
+    "name": "funding_date",
+    "description": "Date the seed round closed (ISO 8601)",
+    "type": "date",
+    "required": true
+   },
+   {
+    "name": "city",
+    "description": "Headquarters city of the startup in India",
+    "type": "string",
+    "required": false
+   },
+   {
+    "name": "sector",
+    "description": "Industry sector; for this dataset always 'edtech'",
+    "type": "string",
+    "required": true
+   }
+  ],
+  "filters": [
+   "country: India",
+   "industry: edtech",
+   "funding_round: seed",
+   "funding_year: 2024"
+  ],
+  "search_queries": [
+   "site:crunchbase.com \"seed\" \"edtech\" \"India\" 2024",
+   "site:techcrunch.com \"seed round\" \"Indian edtech\" 2024",
+   "site:yourstory.com \"seed funding\" \"edtech\" \"India\" 2024",
+   "site:inc42.com \"seed\" \"edtech startup\" \"India\" 2024",
+   "\"2024\" \"seed\" \"edtech\" \"India\" \"lead investor\""
+  ],
+  "target_count": 50,
+  "target_coverage": 0.8
+ },
+ "stats": {
+  "urls_discovered": 42,
+  "urls_skipped_compliance": 0,
+  "pages_fetched": 42,
+  "pages_failed": 0,
+  "records_found": 0,
+  "records_after_dedupe": 0,
+  "captures_run": 12,
+  "coverage_estimate": null,
+  "coverage_ci_low": null,
+  "coverage_ci_high": null,
+  "s_hat": null,
+  "jev_chunks_gated": 127,
+  "jev_chunks_total": 127,
+  "jev_records_dropped": 0,
+  "conflicts_resolved": 0
+ },
+ "error": null,
+ "created_at": "2026-10-01T03:54:38.571058+00:00",
+ "finished_at": "2026-10-01T03:56:05.327930+00:00",
+ "records": [],
+ "sources": [
+  {
+   "id": "885b1d979839:71016cc79f9b4587:https://en.wikipedia.org/wiki/Seed",
+   "run_id": "885b1d979839",
+   "url": "https://en.wikipedia.org/wiki/Seed",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:50.716963+00:00"
+  },
+  {
+   "id": "885b1d979839:71016cc79f9b4587:https://seed.com/",
+   "run_id": "885b1d979839",
+   "url": "https://seed.com/",
+   "domain": "seed.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:52.618038+00:00"
+  },
+  {
+   "id": "885b1d979839:71016cc79f9b4587:https://www.chunkbase.com/apps/seed-map",
+   "run_id": "885b1d979839",
+   "url": "https://www.chunkbase.com/apps/seed-map",
+   "domain": "www.chunkbase.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:53.303552+00:00"
+  },
+  {
+   "id": "885b1d979839:71016cc79f9b4587:https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "run_id": "885b1d979839",
+   "url": "https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "domain": "www.goodhousekeeping.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:54:54.716147+00:00"
+  },
+  {
+   "id": "885b1d979839:71016cc79f9b4587:https://www.amazon.com/seed/s?k=seed",
+   "run_id": "885b1d979839",
+   "url": "https://www.amazon.com/seed/s?k=seed",
+   "domain": "www.amazon.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:00.508111+00:00"
+  },
+  {
+   "id": "885b1d979839:71016cc79f9b4587:https://www.johnnyseeds.com/",
+   "run_id": "885b1d979839",
+   "url": "https://www.johnnyseeds.com/",
+   "domain": "www.johnnyseeds.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:06.570702+00:00"
+  },
+  {
+   "id": "885b1d979839:9a142b39058f46ff:https://en.wikipedia.org/wiki/Seed",
+   "run_id": "885b1d979839",
+   "url": "https://en.wikipedia.org/wiki/Seed",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:31.298755+00:00"
+  },
+  {
+   "id": "885b1d979839:9a142b39058f46ff:https://seed.com/",
+   "run_id": "885b1d979839",
+   "url": "https://seed.com/",
+   "domain": "seed.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:32.272906+00:00"
+  },
+  {
+   "id": "885b1d979839:9a142b39058f46ff:https://www.chunkbase.com/apps/seed-map",
+   "run_id": "885b1d979839",
+   "url": "https://www.chunkbase.com/apps/seed-map",
+   "domain": "www.chunkbase.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:32.457641+00:00"
+  },
+  {
+   "id": "885b1d979839:9a142b39058f46ff:https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "run_id": "885b1d979839",
+   "url": "https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "domain": "www.goodhousekeeping.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:32.787040+00:00"
+  },
+  {
+   "id": "885b1d979839:9a142b39058f46ff:https://www.amazon.com/seed/s?k=seed",
+   "run_id": "885b1d979839",
+   "url": "https://www.amazon.com/seed/s?k=seed",
+   "domain": "www.amazon.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:33.022309+00:00"
+  },
+  {
+   "id": "885b1d979839:9a142b39058f46ff:https://www.johnnyseeds.com/",
+   "run_id": "885b1d979839",
+   "url": "https://www.johnnyseeds.com/",
+   "domain": "www.johnnyseeds.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:33.403083+00:00"
+  },
+  {
+   "id": "885b1d979839:9a8e4959cd42495b:https://en.wikipedia.org/wiki/Seed",
+   "run_id": "885b1d979839",
+   "url": "https://en.wikipedia.org/wiki/Seed",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:46.605554+00:00"
+  },
+  {
+   "id": "885b1d979839:9a8e4959cd42495b:https://seed.com/",
+   "run_id": "885b1d979839",
+   "url": "https://seed.com/",
+   "domain": "seed.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:47.627939+00:00"
+  },
+  {
+   "id": "885b1d979839:9a8e4959cd42495b:https://www.chunkbase.com/apps/seed-map",
+   "run_id": "885b1d979839",
+   "url": "https://www.chunkbase.com/apps/seed-map",
+   "domain": "www.chunkbase.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:47.732979+00:00"
+  },
+  {
+   "id": "885b1d979839:9a8e4959cd42495b:https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "run_id": "885b1d979839",
+   "url": "https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "domain": "www.goodhousekeeping.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:47.939235+00:00"
+  },
+  {
+   "id": "885b1d979839:9a8e4959cd42495b:https://www.amazon.com/seed/s?k=seed",
+   "run_id": "885b1d979839",
+   "url": "https://www.amazon.com/seed/s?k=seed",
+   "domain": "www.amazon.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:48.192412+00:00"
+  },
+  {
+   "id": "885b1d979839:9a8e4959cd42495b:https://www.johnnyseeds.com/",
+   "run_id": "885b1d979839",
+   "url": "https://www.johnnyseeds.com/",
+   "domain": "www.johnnyseeds.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:48.597787+00:00"
+  },
+  {
+   "id": "885b1d979839:a014683e19a040b3:https://en.wikipedia.org/wiki/Seed",
+   "run_id": "885b1d979839",
+   "url": "https://en.wikipedia.org/wiki/Seed",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:49.809171+00:00"
+  },
+  {
+   "id": "885b1d979839:a014683e19a040b3:https://seed.com/",
+   "run_id": "885b1d979839",
+   "url": "https://seed.com/",
+   "domain": "seed.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:50.786830+00:00"
+  },
+  {
+   "id": "885b1d979839:a014683e19a040b3:https://www.chunkbase.com/apps/seed-map",
+   "run_id": "885b1d979839",
+   "url": "https://www.chunkbase.com/apps/seed-map",
+   "domain": "www.chunkbase.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:50.936648+00:00"
+  },
+  {
+   "id": "885b1d979839:a014683e19a040b3:https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "run_id": "885b1d979839",
+   "url": "https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "domain": "www.goodhousekeeping.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:51.315497+00:00"
+  },
+  {
+   "id": "885b1d979839:a014683e19a040b3:https://www.amazon.com/seed/s?k=seed",
+   "run_id": "885b1d979839",
+   "url": "https://www.amazon.com/seed/s?k=seed",
+   "domain": "www.amazon.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:51.585246+00:00"
+  },
+  {
+   "id": "885b1d979839:a014683e19a040b3:https://www.johnnyseeds.com/",
+   "run_id": "885b1d979839",
+   "url": "https://www.johnnyseeds.com/",
+   "domain": "www.johnnyseeds.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:51.927195+00:00"
+  },
+  {
+   "id": "885b1d979839:161eb7cc7e784bb7:https://en.wikipedia.org/wiki/Seed",
+   "run_id": "885b1d979839",
+   "url": "https://en.wikipedia.org/wiki/Seed",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:57.615461+00:00"
+  },
+  {
+   "id": "885b1d979839:161eb7cc7e784bb7:https://seed.com/",
+   "run_id": "885b1d979839",
+   "url": "https://seed.com/",
+   "domain": "seed.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:58.706127+00:00"
+  },
+  {
+   "id": "885b1d979839:161eb7cc7e784bb7:https://www.chunkbase.com/apps/seed-map",
+   "run_id": "885b1d979839",
+   "url": "https://www.chunkbase.com/apps/seed-map",
+   "domain": "www.chunkbase.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:58.806047+00:00"
+  },
+  {
+   "id": "885b1d979839:161eb7cc7e784bb7:https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "run_id": "885b1d979839",
+   "url": "https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "domain": "www.goodhousekeeping.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:59.077716+00:00"
+  },
+  {
+   "id": "885b1d979839:161eb7cc7e784bb7:https://www.amazon.com/seed/s?k=seed",
+   "run_id": "885b1d979839",
+   "url": "https://www.amazon.com/seed/s?k=seed",
+   "domain": "www.amazon.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:59.487034+00:00"
+  },
+  {
+   "id": "885b1d979839:161eb7cc7e784bb7:https://www.johnnyseeds.com/",
+   "run_id": "885b1d979839",
+   "url": "https://www.johnnyseeds.com/",
+   "domain": "www.johnnyseeds.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:55:59.777354+00:00"
+  },
+  {
+   "id": "885b1d979839:991cfd2779c84a65:https://en.wikipedia.org/wiki/Seed",
+   "run_id": "885b1d979839",
+   "url": "https://en.wikipedia.org/wiki/Seed",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:00.943469+00:00"
+  },
+  {
+   "id": "885b1d979839:991cfd2779c84a65:https://seed.com/",
+   "run_id": "885b1d979839",
+   "url": "https://seed.com/",
+   "domain": "seed.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:01.928095+00:00"
+  },
+  {
+   "id": "885b1d979839:991cfd2779c84a65:https://www.chunkbase.com/apps/seed-map",
+   "run_id": "885b1d979839",
+   "url": "https://www.chunkbase.com/apps/seed-map",
+   "domain": "www.chunkbase.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:02.098384+00:00"
+  },
+  {
+   "id": "885b1d979839:991cfd2779c84a65:https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "run_id": "885b1d979839",
+   "url": "https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "domain": "www.goodhousekeeping.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:02.296343+00:00"
+  },
+  {
+   "id": "885b1d979839:991cfd2779c84a65:https://www.amazon.com/seed/s?k=seed",
+   "run_id": "885b1d979839",
+   "url": "https://www.amazon.com/seed/s?k=seed",
+   "domain": "www.amazon.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:02.482846+00:00"
+  },
+  {
+   "id": "885b1d979839:991cfd2779c84a65:https://www.johnnyseeds.com/",
+   "run_id": "885b1d979839",
+   "url": "https://www.johnnyseeds.com/",
+   "domain": "www.johnnyseeds.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:02.799071+00:00"
+  },
+  {
+   "id": "885b1d979839:6e747a4a1e9b4feb:https://en.wikipedia.org/wiki/Seed",
+   "run_id": "885b1d979839",
+   "url": "https://en.wikipedia.org/wiki/Seed",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:03.374347+00:00"
+  },
+  {
+   "id": "885b1d979839:6e747a4a1e9b4feb:https://seed.com/",
+   "run_id": "885b1d979839",
+   "url": "https://seed.com/",
+   "domain": "seed.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:04.341586+00:00"
+  },
+  {
+   "id": "885b1d979839:6e747a4a1e9b4feb:https://www.chunkbase.com/apps/seed-map",
+   "run_id": "885b1d979839",
+   "url": "https://www.chunkbase.com/apps/seed-map",
+   "domain": "www.chunkbase.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:04.475962+00:00"
+  },
+  {
+   "id": "885b1d979839:6e747a4a1e9b4feb:https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "run_id": "885b1d979839",
+   "url": "https://www.goodhousekeeping.com/what-to-buy/a71410546/seed-probiotic-reviews/",
+   "domain": "www.goodhousekeeping.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:04.697755+00:00"
+  },
+  {
+   "id": "885b1d979839:6e747a4a1e9b4feb:https://www.amazon.com/seed/s?k=seed",
+   "run_id": "885b1d979839",
+   "url": "https://www.amazon.com/seed/s?k=seed",
+   "domain": "www.amazon.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:04.951139+00:00"
+  },
+  {
+   "id": "885b1d979839:6e747a4a1e9b4feb:https://www.johnnyseeds.com/",
+   "run_id": "885b1d979839",
+   "url": "https://www.johnnyseeds.com/",
+   "domain": "www.johnnyseeds.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:05.315997+00:00"
+  }
+ ],
+ "_elapsed_s": 94,
+ "_prompt": "Indian edtech startups that raised seed funding in 2024 with company name, amount raised, and lead investor"
+}

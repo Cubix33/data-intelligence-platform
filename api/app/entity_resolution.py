@@ -41,6 +41,7 @@ _LEGAL_SUFFIXES = re.compile(
     re.IGNORECASE,
 )
 
+_PARENTHETICAL = re.compile(r"\([^)]*\)")
 _WHITESPACE = re.compile(r"\s+")
 _NON_ALNUM = re.compile(r"[^a-z0-9 ]")
 
@@ -57,6 +58,8 @@ def normalize_name(name: str) -> str:
     5. Truncate to 80 chars for use as a DB key
     """
     s = str(name or "").lower()
+    s = _PARENTHETICAL.sub(" ", s)          # "Smart India Hackathon (SIH) 2025" -> no "(SIH)"
+    s = re.split(r"\s*(?::|–|—| - | \| )\s*", s, maxsplit=1)[0] or s  # drop taglines after ":" / dash
     s = _LEGAL_SUFFIXES.sub("", s)
     s = _NON_ALNUM.sub(" ", s)
     s = _WHITESPACE.sub(" ", s).strip()
@@ -97,6 +100,35 @@ def resolve_entity_key(primary_value: str, contact_url: str | None = None) -> st
     "Google LLC" vs "Google" and merged distinct orgs with the same first name.
     """
     return normalize_name(primary_value)
+
+
+_YEAR = re.compile(r"\b(19|20)\d{2}\b")
+
+
+def _compact(key: str) -> str:
+    """Key with years and spaces removed: 'qwen 2 5 vl' and 'qwen2 5 vl 2025' both -> 'qwen25vl'."""
+    return _YEAR.sub("", key).replace(" ", "")
+
+
+def match_existing_key(key: str, existing_keys) -> str:
+    """Return an already-seen key that names the same entity as ``key``, else ``key``.
+
+    Catches the duplicates exact keys miss: spacing/punctuation variants ("Qwen2.5-VL" vs
+    "Qwen 2.5 VL") and a bare name vs the same name with a year ("Smart India Hackathon"
+    vs "Smart India Hackathon 2025"). Keys that differ in any other word stay separate.
+    """
+    compact = _compact(key)
+    if not compact:
+        return key
+    years = {m.group(0) for m in _YEAR.finditer(key)}
+    for other in existing_keys:
+        if other == key or _compact(other) != compact:
+            continue
+        other_years = {m.group(0) for m in _YEAR.finditer(other)}
+        if years and other_years and years != other_years:
+            continue  # "HackWave 2024" and "HackWave 2025" are different editions
+        return other
+    return key
 
 
 # ---------------------------------------------------------------------------

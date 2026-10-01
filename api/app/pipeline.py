@@ -22,7 +22,7 @@ from urllib.parse import urlparse
 
 from . import compliance, config, db, fetcher, llm
 from .coverage import chao2, bootstrap_ci, marginal_yield
-from .entity_resolution import resolve_entity_key
+from .entity_resolution import match_existing_key, resolve_entity_key
 from . import verifier as verifier_mod
 from . import truth as truth_mod
 from . import jev as jev_mod
@@ -81,7 +81,34 @@ def _value_in_quote(value, quote: str | None) -> bool:
         return False
     v = re.sub(r"\s+", " ", str(value)).strip().lower()
     q = re.sub(r"\s+", " ", quote).lower()
-    return v in q or all(tok in q for tok in re.findall(r"[a-z0-9]+", v) if tok)
+    if v and re.search(rf"(?<![a-z0-9]){re.escape(v)}(?![a-z0-9])", q):
+        return True
+    q_tokens = set(re.findall(r"[a-z0-9]+", q))
+    v_tokens = re.findall(r"[a-z0-9]+", v)
+    if v_tokens and all(tok in q_tokens for tok in v_tokens):
+        return True
+    # Same quantity written differently: "4000000" vs "$4 million", "4M" vs "4 mn".
+    v_nums = _numbers(v)
+    return len(v_nums) == 1 and any(abs(n - v_nums[0]) <= 0.005 * max(abs(n), 1e-9) for n in _numbers(q))
+
+
+_MAGNITUDE = {
+    "k": 1e3, "thousand": 1e3, "lakh": 1e5, "lakhs": 1e5,
+    "m": 1e6, "mn": 1e6, "million": 1e6, "cr": 1e7, "crore": 1e7, "crores": 1e7,
+    "b": 1e9, "bn": 1e9, "billion": 1e9,
+}
+_NUMBER = re.compile(r"(\d[\d,]*(?:\.\d+)?)\s*(k|thousand|lakhs?|mn|m|million|crores?|cr|bn|b|billion)?(?![a-z])")
+
+
+def _numbers(text: str) -> list[float]:
+    """Every number in ``text`` with its magnitude word applied ("4.5 mn" -> 4500000.0)."""
+    out = []
+    for digits, mag in _NUMBER.findall(text.lower()):
+        try:
+            out.append(float(digits.replace(",", "")) * _MAGNITUDE.get(mag, 1.0))
+        except ValueError:
+            continue
+    return out
 
 
 def _norm_value(value, field_type: str) -> str | None:
@@ -101,8 +128,21 @@ def _norm_value(value, field_type: str) -> str | None:
 # Capture planner — decides what to search next
 # ---------------------------------------------------------------------------
 
-_ENGINES = ["ddg", "brave", "searxng"]
-_SOURCE_TYPES = ["general", "news"]
+def _available_engines() -> list[str]:
+    """Only engines that will actually run — an unconfigured engine silently falls back to DDG,
+    which would repeat the same search and fake an independent Chao2 capture occasion."""
+    engines = ["ddg"]
+    if config.BRAVE_API_KEY:
+        engines.append("brave")
+    if config.SEARXNG_URL:
+        engines.append("searxng")
+    return engines
+
+
+# "news" never changed the search itself, so it only duplicated captures.
+_SOURCE_TYPES = ["general"]
+MAX_REPLANS = 3
+MIN_CAPTURES_FOR_STOP = 3
 
 
 def _next_capture_params(
@@ -111,7 +151,7 @@ def _next_capture_params(
 ) -> tuple[str, str, str] | None:
     """Return (query, engine, source_type) not yet tried, or None if exhausted."""
     for query in spec.search_queries:
-        for engine in _ENGINES:
+        for engine in _available_engines():
             for source_type in _SOURCE_TYPES:
                 combo = (query, engine, source_type)
                 if combo not in used_combos:
@@ -219,6 +259,13 @@ def run_pipeline(run_id: str, prompt: str) -> None:
     capture_history: dict[str, set[str]] = {}
     used_combos: set[tuple] = set()
     recent_new_counts: list[int] = []
+    replans_done = 0
+    seen_keys: set[str] = set()
+
+    def _entity_key(primary_value) -> str:
+        key = match_existing_key(resolve_entity_key(str(primary_value)), seen_keys)
+        seen_keys.add(key)
+        return key
 
     stats = {
         "urls_discovered": 0,
@@ -286,6 +333,8 @@ def run_pipeline(run_id: str, prompt: str) -> None:
         candidates = candidates[: config.MAX_URLS_PER_CAPTURE]
         stats["urls_discovered"] += len(candidates)
         new_in_capture = 0
+        gated_at_start = stats["jev_chunks_gated"]
+        chunks_at_start = stats["jev_chunks_total"]
 
         for candidate in candidates:
             if _stop_if_cancelled():
@@ -488,7 +537,7 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                     v = b["fields"].get(fname)
                     db.insert_claim(
                         run_id=run_id,
-                        entity_id=resolve_entity_key(str(b["primary_value"])),
+                        entity_id=_entity_key(b["primary_value"]),
                         field=fname,
                         value_raw=str(v) if v is not None else None,
                         value_norm=_norm_value(v, field_types.get(fname, "string")),
@@ -504,7 +553,7 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                     primary_value = b["primary_value"]
                     fields = b["fields"]
                     provenance = b["provenance"]
-                    entity_key = resolve_entity_key(str(primary_value))
+                    entity_key = _entity_key(primary_value)
                     verified_count = sum(1 for f in dataspec.fields if provenance[f.name]["verified"])
                     fields_sourced = round(verified_count / max(len(dataspec.fields), 1), 2)
 
@@ -529,6 +578,28 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                           records_found=new_here, capture_id=capture_id)
 
         recent_new_counts.append(new_in_capture)
+
+        # --- Adaptive re-plan: a capture that surfaced nothing new means the queries are off.
+        # Ask the model for fresh angles instead of recombining the same bad queries. ---
+        # J1 gating nearly every chunk is an even clearer "off-topic results" signal.
+        chunks_here = stats["jev_chunks_total"] - chunks_at_start
+        mostly_gated = chunks_here > 0 and (stats["jev_chunks_gated"] - gated_at_start) >= 0.9 * chunks_here
+        if (new_in_capture == 0 or mostly_gated) and replans_done < MAX_REPLANS:
+            replans_done += 1
+            try:
+                fresh = llm.replan_queries(
+                    dataspec, list(dataspec.search_queries),
+                    [r["entity_key"] for r in db.list_records(run_id)],
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("run %s: replan failed: %s", run_id, exc)
+                fresh = []
+            if fresh:
+                logger.info("run %s: replanned with %s", run_id, fresh)
+                # Try the fresh queries next, ahead of the remaining (likely similar) originals.
+                pos = dataspec.search_queries.index(query) + 1
+                dataspec.search_queries[pos:pos] = fresh
+                _publish_event(run_id, "replan", {"queries": fresh})
 
         # --- Coverage estimate after each capture ---
         T = stats["captures_run"]
@@ -560,7 +631,11 @@ def run_pipeline(run_id: str, prompt: str) -> None:
             # Stopping rule
             target = getattr(dataspec, "target_coverage",
                              config.DEFAULT_TARGET_COVERAGE)
-            if coverage_lo >= target:
+            enough_evidence = (
+                T >= MIN_CAPTURES_FOR_STOP
+                and s_obs >= min(dataspec.target_count, 5)
+            )
+            if coverage_lo >= target and enough_evidence:
                 logger.info("run %s: coverage target %.0f%% reached — stopping",
                             run_id, target * 100)
                 break
@@ -580,6 +655,20 @@ def run_pipeline(run_id: str, prompt: str) -> None:
 
     # --- 4. Finish ---
     stats["records_after_dedupe"] = len(db.list_records(run_id))
+    if stats["records_after_dedupe"] == 0:
+        gated = stats["jev_chunks_gated"]
+        total = stats["jev_chunks_total"]
+        error_msg = (
+            "Scout found no usable records. "
+            f"{stats['urls_discovered']} pages were found over {stats['captures_run']} searches, "
+            f"but {gated} of {total} page sections were judged irrelevant to your request"
+            if total else
+            f"Scout found no pages it could read ({stats['urls_discovered']} found, "
+            f"{stats['pages_failed']} failed to load)"
+        ) + ". Try rephrasing with a more specific topic, place, or year."
+        db.update_run(run_id, status="failed", stats=stats, error=error_msg, finished_at=db.now())
+        _publish_event(run_id, "error", {"message": error_msg})
+        return
     db.update_run(run_id, status="done", stats=stats, finished_at=db.now())
     _publish_event(run_id, "done", {"stats": stats})
 

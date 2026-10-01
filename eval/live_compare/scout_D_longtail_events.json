@@ -1,0 +1,1040 @@
+{
+ "id": "5f6cf5c50fd4",
+ "prompt": "Student hackathons held in India in 2025 with event name, city, and a sponsor",
+ "status": "done",
+ "data_spec": {
+  "entity": "student_hackathon",
+  "summary": "Collect information on student hackathons taking place in India during the year 2025, capturing key details such as the event name, location, sponsor, dates, and organizing institution.",
+  "fields": [
+   {
+    "name": "event_name",
+    "description": "Official name of the hackathon event",
+    "type": "string",
+    "required": true
+   },
+   {
+    "name": "city",
+    "description": "City in India where the hackathon is held",
+    "type": "string",
+    "required": true
+   },
+   {
+    "name": "sponsor",
+    "description": "Primary sponsor(s) of the hackathon",
+    "type": "string",
+    "required": true
+   },
+   {
+    "name": "start_date",
+    "description": "Start date of the hackathon (YYYY-MM-DD)",
+    "type": "date",
+    "required": true
+   },
+   {
+    "name": "end_date",
+    "description": "End date of the hackathon (YYYY-MM-DD)",
+    "type": "date",
+    "required": false
+   },
+   {
+    "name": "organizer",
+    "description": "University, college, or organization that hosts the hackathon",
+    "type": "string",
+    "required": false
+   }
+  ],
+  "filters": [
+   "year:2025",
+   "country:India",
+   "event_type:student hackathon"
+  ],
+  "search_queries": [
+   "2025 student hackathon India site:.org",
+   "2025 college hackathon India sponsor",
+   "2025 \"student hackathon\" India schedule",
+   "2025 hackathon for students India \"sponsored by\"",
+   "2025 university hackathon India announcements"
+  ],
+  "target_count": 50,
+  "target_coverage": 0.8
+ },
+ "stats": {
+  "urls_discovered": 54,
+  "urls_skipped_compliance": 0,
+  "pages_fetched": 42,
+  "pages_failed": 12,
+  "records_found": 13,
+  "records_after_dedupe": 7,
+  "captures_run": 9,
+  "coverage_estimate": 0.913,
+  "coverage_ci_low": 0.913,
+  "coverage_ci_high": 0.913,
+  "s_hat": 7.7,
+  "jev_chunks_gated": 268,
+  "jev_chunks_total": 281,
+  "jev_records_dropped": 0,
+  "conflicts_resolved": 0
+ },
+ "error": null,
+ "created_at": "2026-10-01T03:57:15.172558+00:00",
+ "finished_at": "2026-10-01T03:59:59.517356+00:00",
+ "records": [
+  {
+   "id": "5f6cf5c50fd4:klh internal smart india hackathon 2025",
+   "run_id": "5f6cf5c50fd4",
+   "entity_key": "klh internal smart india hackathon 2025",
+   "fields_sourced": 0.67,
+   "fields": {
+    "event_name": "KLH Internal Smart India Hackathon 2025",
+    "city": "Hyderabad",
+    "sponsor": "KLH, Bowrampet, Hyderabad",
+    "start_date": "2025-09-03",
+    "end_date": "2025-09-12",
+    "organizer": "IEEE Student Branch , KLEFB-STB60227179"
+   },
+   "provenance": {
+    "event_name": {
+     "url": "https://events.vtools.ieee.org/m/509091",
+     "evidence": "KLH Internal Smart India Hackathon 2025",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3",
+     "jev_filters": {
+      "year:2025": 0.97,
+      "country:India": 0.95,
+      "event_type:student hackathon": 0.95
+     }
+    },
+    "city": {
+     "url": "https://events.vtools.ieee.org/m/509091",
+     "evidence": "Hyderabad, Telengana",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "sponsor": {
+     "url": "https://events.vtools.ieee.org/m/509091",
+     "evidence": "Co-sponsored by\nKLH, Bowrampet, Hyderabad",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "start_date": {
+     "url": "https://events.vtools.ieee.org/m/509091",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "end_date": {
+     "url": "https://events.vtools.ieee.org/m/509091",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "organizer": {
+     "url": "https://events.vtools.ieee.org/m/509091",
+     "evidence": "Organized by:\nIEEE Student Branch , KLEFB-STB60227179",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3"
+    }
+   },
+   "created_at": "2026-10-01T03:57:22.969213+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:smart india hackathon 2025",
+   "run_id": "5f6cf5c50fd4",
+   "entity_key": "smart india hackathon 2025",
+   "fields_sourced": 0.5,
+   "fields": {
+    "event_name": "Smart India Hackathon 2025",
+    "city": null,
+    "sponsor": "Ministry of Education\u2019s Innovation Cell and AICTE",
+    "start_date": null,
+    "end_date": null,
+    "organizer": "Ministry of Education\u2019s Innovation Cell and AICTE"
+   },
+   "provenance": {
+    "event_name": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": "Smart India Hackathon 2025",
+     "verified": true,
+     "capture_id": "1bedc94b4b984abc",
+     "jev_filters": {
+      "year:2025": 0.96,
+      "country:India": 0.92,
+      "event_type:student hackathon": 0.96
+     },
+     "corroborated_by": "https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/"
+    },
+    "city": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "sponsor": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": "Smart India Hackathon is a nationwide, non-stop product development competition organised by the Ministry of Education\u2019s Innovation Cell and AICTE",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "start_date": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "end_date": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "organizer": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": "Smart India Hackathon is a nationwide, non-stop product development competition organised by the Ministry of Education\u2019s Innovation Cell and AICTE",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3",
+     "conflicts": [
+      {
+       "url": "https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+       "value": "IPS Academy, Indore"
+      }
+     ]
+    }
+   },
+   "created_at": "2026-10-01T03:57:31.892946+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:infosec university hackathon 2025",
+   "run_id": "5f6cf5c50fd4",
+   "entity_key": "infosec university hackathon 2025",
+   "fields_sourced": 0.67,
+   "fields": {
+    "event_name": "Infosec University Hackathon 2025",
+    "city": "Hyderabad",
+    "sponsor": "Synchrony",
+    "start_date": "2025-11-23",
+    "end_date": "2025-11-23",
+    "organizer": "Synchrony Infosec University Hackathon"
+   },
+   "provenance": {
+    "event_name": {
+     "url": "https://ctftime.org/event/3008",
+     "evidence": "Infosec University Hackathon 2025",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3",
+     "jev_filters": {
+      "year:2025": 0.98,
+      "country:India": 0.88,
+      "event_type:student hackathon": 0.93
+     }
+    },
+    "city": {
+     "url": "https://ctftime.org/event/3008",
+     "evidence": "Cybersecurity Centre of Excellence (CCoE) Hyderabad",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "sponsor": {
+     "url": "https://ctftime.org/event/3008",
+     "evidence": "hosted by Synchrony",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "start_date": {
+     "url": "https://ctftime.org/event/3008",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "end_date": {
+     "url": "https://ctftime.org/event/3008",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "organizer": {
+     "url": "https://ctftime.org/event/3008",
+     "evidence": "Event organizers Synchrony Infosec University Hackathon",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3"
+    }
+   },
+   "created_at": "2026-10-01T03:57:41.340175+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:smart india hackathon sih 2025",
+   "run_id": "5f6cf5c50fd4",
+   "entity_key": "smart india hackathon sih 2025",
+   "fields_sourced": 0.5,
+   "fields": {
+    "event_name": "Smart India Hackathon (SIH) 2025",
+    "city": null,
+    "sponsor": "Ministry of Education\u2019s Innovation Cell and All India Council for Technical Education (AICTE)",
+    "start_date": null,
+    "end_date": null,
+    "organizer": "Ministry of Education\u2019s Innovation Cell and All India Council for Technical Education (AICTE)"
+   },
+   "provenance": {
+    "event_name": {
+     "url": "https://alltogether.swe.org/2026/01/smart-india-hackathon/",
+     "evidence": "Attending the Smart India Hackathon (SIH) 2025 as a jury member at Rajalakshmi Engineering College",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3",
+     "jev_filters": {
+      "year:2025": 0.95,
+      "country:India": 0.96,
+      "event_type:student hackathon": 0.95
+     }
+    },
+    "city": {
+     "url": "https://alltogether.swe.org/2026/01/smart-india-hackathon/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "sponsor": {
+     "url": "https://alltogether.swe.org/2026/01/smart-india-hackathon/",
+     "evidence": "SIH is a nationwide, nonstop product development competition organized by the Ministry of Education\u2019s Innovation Cell and All India Council for Technical Education (AICTE)",
+     "verified": true,
+     "capture_id": "98d25f186f504d10"
+    },
+    "start_date": {
+     "url": "https://alltogether.swe.org/2026/01/smart-india-hackathon/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "end_date": {
+     "url": "https://alltogether.swe.org/2026/01/smart-india-hackathon/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "2a3ff810ecc640c3"
+    },
+    "organizer": {
+     "url": "https://alltogether.swe.org/2026/01/smart-india-hackathon/",
+     "evidence": "organized by the Ministry of Education\u2019s Innovation Cell and All India Council for Technical Education (AICTE)",
+     "verified": true,
+     "capture_id": "2a3ff810ecc640c3"
+    }
+   },
+   "created_at": "2026-10-01T03:57:45.434924+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:smart india hackathon 2025 where bold student ideas become national solutions",
+   "run_id": "5f6cf5c50fd4",
+   "entity_key": "smart india hackathon 2025 where bold student ideas become national solutions",
+   "fields_sourced": 0.33,
+   "fields": {
+    "event_name": "Smart India Hackathon 2025: Where Bold Student Ideas Become National Solutions",
+    "city": null,
+    "sponsor": null,
+    "start_date": null,
+    "end_date": null,
+    "organizer": "Ministry of Education\u2019s Innovation Cell and AICTE"
+   },
+   "provenance": {
+    "event_name": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": "Smart India Hackathon 2025: Where Bold Student Ideas Become National Solutions",
+     "verified": true,
+     "capture_id": "98d25f186f504d10",
+     "jev_filters": {
+      "year:2025": 0.96,
+      "country:India": 0.93,
+      "event_type:student hackathon": 0.97
+     }
+    },
+    "city": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "98d25f186f504d10"
+    },
+    "sponsor": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "98d25f186f504d10"
+    },
+    "start_date": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "98d25f186f504d10"
+    },
+    "end_date": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "98d25f186f504d10"
+    },
+    "organizer": {
+     "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+     "evidence": "Smart India Hackathon is a nationwide, non-stop product development competition organised by the Ministry of Education\u2019s Innovation Cell and AICTE",
+     "verified": true,
+     "capture_id": "98d25f186f504d10"
+    }
+   },
+   "created_at": "2026-10-01T03:57:57.883440+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:hacksagon 2025 national hardware and software hackathon",
+   "run_id": "5f6cf5c50fd4",
+   "entity_key": "hacksagon 2025 national hardware and software hackathon",
+   "fields_sourced": 0.67,
+   "fields": {
+    "event_name": "HACKSAGON-2025: National Hardware and Software Hackathon",
+    "city": "Gwalior, Maharashtra",
+    "sponsor": "STB11474 - Indian Inst of Info Tech & Management-Gwalior, IEEE EPS Society M.P. Section, IEEE MP Section",
+    "start_date": "2025-06-27",
+    "end_date": "2025-06-29",
+    "organizer": "IEEE Student Branch, ABV-IIITM Gwalior"
+   },
+   "provenance": {
+    "event_name": {
+     "url": "https://events.vtools.ieee.org/m/490590",
+     "evidence": "HACKSAGON-2025: National Hardware and Software Hackathon",
+     "verified": true,
+     "capture_id": "1bedc94b4b984abc",
+     "jev_filters": {
+      "year:2025": 0.97,
+      "country:India": 0.91,
+      "event_type:student hackathon": 0.93
+     }
+    },
+    "city": {
+     "url": "https://events.vtools.ieee.org/m/490590",
+     "evidence": "Gwalior, Maharashtra",
+     "verified": true,
+     "capture_id": "1bedc94b4b984abc"
+    },
+    "sponsor": {
+     "url": "https://events.vtools.ieee.org/m/490590",
+     "evidence": "Co-sponsored by STB11474 - Indian Inst of Info Tech & Management-Gwalior, IEEE EPS Society M.P. Section, IEEE MP Section",
+     "verified": true,
+     "capture_id": "1bedc94b4b984abc"
+    },
+    "start_date": {
+     "url": "https://events.vtools.ieee.org/m/490590",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "1bedc94b4b984abc"
+    },
+    "end_date": {
+     "url": "https://events.vtools.ieee.org/m/490590",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "1bedc94b4b984abc"
+    },
+    "organizer": {
+     "url": "https://events.vtools.ieee.org/m/490590",
+     "evidence": "Organized by IEEE Student Branch, ABV-IIITM Gwalior",
+     "verified": true,
+     "capture_id": "1bedc94b4b984abc"
+    }
+   },
+   "created_at": "2026-10-01T03:59:10.388451+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:smart india hackathon",
+   "run_id": "5f6cf5c50fd4",
+   "entity_key": "smart india hackathon",
+   "fields_sourced": 0.17,
+   "fields": {
+    "event_name": "Smart India Hackathon",
+    "city": null,
+    "sponsor": null,
+    "start_date": null,
+    "end_date": null,
+    "organizer": null
+   },
+   "provenance": {
+    "event_name": {
+     "url": "https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+     "evidence": "Smart India Hackathon (SIH) is one of India's largest and most prestigious hackathons",
+     "verified": true,
+     "capture_id": "1bedc94b4b984abc",
+     "jev_filters": {
+      "year:2025": 0.74,
+      "country:India": 0.9,
+      "event_type:student hackathon": 0.93
+     }
+    },
+    "city": {
+     "url": "https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "1bedc94b4b984abc"
+    },
+    "sponsor": {
+     "url": "https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "1bedc94b4b984abc"
+    },
+    "start_date": {
+     "url": "https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "1bedc94b4b984abc"
+    },
+    "end_date": {
+     "url": "https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "1bedc94b4b984abc"
+    },
+    "organizer": {
+     "url": "https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "1bedc94b4b984abc"
+    }
+   },
+   "created_at": "2026-10-01T03:59:17.993886+00:00"
+  }
+ ],
+ "sources": [
+  {
+   "id": "5f6cf5c50fd4:2a3ff810ecc640c3:https://hackindia.org/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://hackindia.org/",
+   "domain": "hackindia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.26)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:57:19.413089+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:2a3ff810ecc640c3:https://events.vtools.ieee.org/m/509091",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://events.vtools.ieee.org/m/509091",
+   "domain": "events.vtools.ieee.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 1,
+   "created_at": "2026-10-01T03:57:22.978181+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:2a3ff810ecc640c3:https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+   "domain": "swe.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 1,
+   "created_at": "2026-10-01T03:57:31.896921+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:2a3ff810ecc640c3:https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+   "domain": "www.geeksforgeeks.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:57:37.365883+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:2a3ff810ecc640c3:https://ctftime.org/event/3008",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://ctftime.org/event/3008",
+   "domain": "ctftime.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 1,
+   "created_at": "2026-10-01T03:57:41.350020+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:2a3ff810ecc640c3:https://alltogether.swe.org/2026/01/smart-india-hackathon/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://alltogether.swe.org/2026/01/smart-india-hackathon/",
+   "domain": "alltogether.swe.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 1,
+   "created_at": "2026-10-01T03:57:45.444822+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:98d25f186f504d10:https://hackindia.org/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://hackindia.org/",
+   "domain": "hackindia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.26)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:57:52.011552+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:98d25f186f504d10:https://events.vtools.ieee.org/m/509091",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://events.vtools.ieee.org/m/509091",
+   "domain": "events.vtools.ieee.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:57:55.273809+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:98d25f186f504d10:https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+   "domain": "swe.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 1,
+   "created_at": "2026-10-01T03:57:57.931783+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:98d25f186f504d10:https://alltogether.swe.org/2026/01/smart-india-hackathon/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://alltogether.swe.org/2026/01/smart-india-hackathon/",
+   "domain": "alltogether.swe.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:58:00.282828+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:98d25f186f504d10:https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+   "domain": "www.geeksforgeeks.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:58:03.518301+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:98d25f186f504d10:https://ctftime.org/event/3008",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://ctftime.org/event/3008",
+   "domain": "ctftime.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:58:06.794437+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:480e89836ba04131:https://en.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://en.m.wikipedia.org/wiki/2025",
+   "domain": "en.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.03)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:58:20.620177+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:480e89836ba04131:https://en.m.wikipedia.org/wiki/2025_in_the_United_States",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://en.m.wikipedia.org/wiki/2025_in_the_United_States",
+   "domain": "en.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:58:39.102115+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:480e89836ba04131:https://simple.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://simple.m.wikipedia.org/wiki/2025",
+   "domain": "simple.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:58:46.885919+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:480e89836ba04131:https://fr.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://fr.m.wikipedia.org/wiki/2025",
+   "domain": "fr.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:58:51.700472+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:480e89836ba04131:https://www.britannica.com/topic/2025-Year-in-Review",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.britannica.com/topic/2025-Year-in-Review",
+   "domain": "www.britannica.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:58:52.227526+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:480e89836ba04131:https://www.timeanddate.com/calendar/?year=2025&country=1",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.timeanddate.com/calendar/?year=2025&country=1",
+   "domain": "www.timeanddate.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:58:52.346527+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bf89209a9c24b58:https://en.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://en.m.wikipedia.org/wiki/2025",
+   "domain": "en.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.03)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:58:53.024610+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bf89209a9c24b58:https://en.m.wikipedia.org/wiki/2025_in_the_United_States",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://en.m.wikipedia.org/wiki/2025_in_the_United_States",
+   "domain": "en.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:58:55.080568+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bf89209a9c24b58:https://simple.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://simple.m.wikipedia.org/wiki/2025",
+   "domain": "simple.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:00.431816+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bf89209a9c24b58:https://fr.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://fr.m.wikipedia.org/wiki/2025",
+   "domain": "fr.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:01.130939+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bf89209a9c24b58:https://www.britannica.com/topic/2025-Year-in-Review",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.britannica.com/topic/2025-Year-in-Review",
+   "domain": "www.britannica.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:01.546435+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bf89209a9c24b58:https://www.timeanddate.com/calendar/?year=2025&country=1",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.timeanddate.com/calendar/?year=2025&country=1",
+   "domain": "www.timeanddate.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:01.693078+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bedc94b4b984abc:https://hackindia.org/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://hackindia.org/",
+   "domain": "hackindia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.21)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:02.610184+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bedc94b4b984abc:https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://swe.org/india/smart-india-hackathon-2025-where-bold-student-ideas-become-national-solutions-by-vamanie-perumal/",
+   "domain": "swe.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:06.757807+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bedc94b4b984abc:https://events.vtools.ieee.org/m/490590",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://events.vtools.ieee.org/m/490590",
+   "domain": "events.vtools.ieee.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 1,
+   "created_at": "2026-10-01T03:59:10.393728+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bedc94b4b984abc:https://kbtcoe.org/wp-content/uploads/2026/03/Report_SIH_2025-final_compressed.pdf",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://kbtcoe.org/wp-content/uploads/2026/03/Report_SIH_2025-final_compressed.pdf",
+   "domain": "kbtcoe.org",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:14.575954+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bedc94b4b984abc:https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.geeksforgeeks.org/interview-experiences/smart-india-hackathon-2025-experience-hardware-edition/",
+   "domain": "www.geeksforgeeks.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 1,
+   "created_at": "2026-10-01T03:59:18.001546+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1bedc94b4b984abc:https://vikasinstitutionsnunna.org/\ud83d\ude80-smart-india-hackathon-2025-internal-round-vctn-\ud83d\ude80/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://vikasinstitutionsnunna.org/\ud83d\ude80-smart-india-hackathon-2025-internal-round-vctn-\ud83d\ude80/",
+   "domain": "vikasinstitutionsnunna.org",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:18.574385+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1c7a912605254df3:https://www.computerhope.com/issues/ch000551.htm",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.computerhope.com/issues/ch000551.htm",
+   "domain": "www.computerhope.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:19.456562+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1c7a912605254df3:https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/tools",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/tools",
+   "domain": "learn.microsoft.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:20.416206+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1c7a912605254df3:https://woshub.com/enable-disable-windows-defender-firewall/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://woshub.com/enable-disable-windows-defender-firewall/",
+   "domain": "woshub.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:22.639437+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1c7a912605254df3:https://support.microsoft.com/en-us/windows/security/windows-security/firewall-and-network-protection-in-the-windows-security-app",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://support.microsoft.com/en-us/windows/security/windows-security/firewall-and-network-protection-in-the-windows-security-app",
+   "domain": "support.microsoft.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:23.589305+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1c7a912605254df3:https://www.tenforums.com/tutorials/70699-how-turn-off-microsoft-defender-firewall-windows-10-a.html",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.tenforums.com/tutorials/70699-how-turn-off-microsoft-defender-firewall-windows-10-a.html",
+   "domain": "www.tenforums.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:23.936347+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:1c7a912605254df3:https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/",
+   "domain": "learn.microsoft.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:24.584072+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:87315f22fc824e59:https://support.google.com/docs/answer/148833?hl=en&co=GENIE.Platform=Desktop",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://support.google.com/docs/answer/148833?hl=en&co=GENIE.Platform=Desktop",
+   "domain": "support.google.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:27.028338+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:87315f22fc824e59:https://support.google.com/docs/answer/4492226?hl=en-GB",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://support.google.com/docs/answer/4492226?hl=en-GB",
+   "domain": "support.google.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:28.710324+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:87315f22fc824e59:https://support.google.com/docs/answer/190843?hl=en&co=GENIE.Platform=Desktop",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://support.google.com/docs/answer/190843?hl=en&co=GENIE.Platform=Desktop",
+   "domain": "support.google.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:30.612275+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:87315f22fc824e59:https://support.google.com/docs/answer/4492226?hl=nl",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://support.google.com/docs/answer/4492226?hl=nl",
+   "domain": "support.google.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:32.307768+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:87315f22fc824e59:https://support.google.com/docs/answer/6199477?hl=en",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://support.google.com/docs/answer/6199477?hl=en",
+   "domain": "support.google.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:33.810489+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:87315f22fc824e59:https://support.google.com/docs/answer/7505592?hl=en",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://support.google.com/docs/answer/7505592?hl=en",
+   "domain": "support.google.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.01)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:35.292869+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:8143e6bfa43242a2:https://en.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://en.m.wikipedia.org/wiki/2025",
+   "domain": "en.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.03)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:41.442869+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:8143e6bfa43242a2:https://en.m.wikipedia.org/wiki/2025_in_the_United_States",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://en.m.wikipedia.org/wiki/2025_in_the_United_States",
+   "domain": "en.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:43.302204+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:8143e6bfa43242a2:https://simple.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://simple.m.wikipedia.org/wiki/2025",
+   "domain": "simple.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:48.174383+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:8143e6bfa43242a2:https://fr.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://fr.m.wikipedia.org/wiki/2025",
+   "domain": "fr.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:48.952404+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:8143e6bfa43242a2:https://www.britannica.com/topic/2025-Year-in-Review",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.britannica.com/topic/2025-Year-in-Review",
+   "domain": "www.britannica.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:49.234236+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:8143e6bfa43242a2:https://www.timeanddate.com/calendar/?year=2025&country=1",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.timeanddate.com/calendar/?year=2025&country=1",
+   "domain": "www.timeanddate.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:49.343770+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:565a958717bf4b5a:https://en.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://en.m.wikipedia.org/wiki/2025",
+   "domain": "en.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.03)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:50.998966+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:565a958717bf4b5a:https://en.m.wikipedia.org/wiki/2025_in_the_United_States",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://en.m.wikipedia.org/wiki/2025_in_the_United_States",
+   "domain": "en.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:53.295906+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:565a958717bf4b5a:https://simple.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://simple.m.wikipedia.org/wiki/2025",
+   "domain": "simple.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:58.072725+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:565a958717bf4b5a:https://fr.m.wikipedia.org/wiki/2025",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://fr.m.wikipedia.org/wiki/2025",
+   "domain": "fr.m.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.02)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:59.011218+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:565a958717bf4b5a:https://www.britannica.com/topic/2025-Year-in-Review",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.britannica.com/topic/2025-Year-in-Review",
+   "domain": "www.britannica.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:59.336414+00:00"
+  },
+  {
+   "id": "5f6cf5c50fd4:565a958717bf4b5a:https://www.timeanddate.com/calendar/?year=2025&country=1",
+   "run_id": "5f6cf5c50fd4",
+   "url": "https://www.timeanddate.com/calendar/?year=2025&country=1",
+   "domain": "www.timeanddate.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:59:59.454137+00:00"
+  }
+ ],
+ "_elapsed_s": 173,
+ "_prompt": "Student hackathons held in India in 2025 with event name, city, and a sponsor"
+}

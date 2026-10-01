@@ -1,0 +1,331 @@
+{
+ "id": "aa0733ec28a7",
+ "prompt": "Latest stable versions of popular Python web frameworks (Django, Flask, FastAPI) with version number and release date",
+ "status": "done",
+ "data_spec": {
+  "entity": "python_web_framework",
+  "summary": "Collect the latest stable version number and release date for popular Python web frameworks such as Django, Flask, and FastAPI.",
+  "fields": [
+   {
+    "name": "framework_name",
+    "description": "Name of the Python web framework (e.g., Django, Flask, FastAPI)",
+    "type": "string",
+    "required": true
+   },
+   {
+    "name": "latest_version",
+    "description": "Latest stable version number of the framework",
+    "type": "string",
+    "required": true
+   },
+   {
+    "name": "release_date",
+    "description": "Release date of the latest stable version (YYYY-MM-DD)",
+    "type": "date",
+    "required": true
+   }
+  ],
+  "filters": [
+   "framework_name"
+  ],
+  "search_queries": [
+   "Django latest stable release version site:docs.djangoproject.com",
+   "Flask current version release date site:pypi.org/project/Flask",
+   "FastAPI latest version release date site:fastapi.tiangolo.com",
+   "Python web framework release notes site:github.com",
+   "Django Flask FastAPI release dates site:news.ycombinator.com"
+  ],
+  "target_count": 3,
+  "target_coverage": 0.8
+ },
+ "stats": {
+  "urls_discovered": 12,
+  "urls_skipped_compliance": 0,
+  "pages_fetched": 10,
+  "pages_failed": 2,
+  "records_found": 32,
+  "records_after_dedupe": 2,
+  "captures_run": 2,
+  "coverage_estimate": 1.0,
+  "coverage_ci_low": 0.8,
+  "coverage_ci_high": 1.0,
+  "s_hat": 2.0,
+  "jev_chunks_gated": 23,
+  "jev_chunks_total": 40,
+  "jev_records_dropped": 0,
+  "conflicts_resolved": 1
+ },
+ "error": null,
+ "created_at": "2026-10-01T03:56:12.028836+00:00",
+ "finished_at": "2026-10-01T03:57:01.722596+00:00",
+ "records": [
+  {
+   "id": "aa0733ec28a7:django",
+   "run_id": "aa0733ec28a7",
+   "entity_key": "django",
+   "fields_sourced": 0.67,
+   "fields": {
+    "framework_name": "Django",
+    "latest_version": "3.0.14",
+    "release_date": "2026-08-05"
+   },
+   "provenance": {
+    "framework_name": {
+     "url": "https://www.djangoproject.com/download/",
+     "evidence": "Download Django | Django",
+     "verified": true,
+     "capture_id": "7d152a6c8ab845e3",
+     "jev_filters": {
+      "framework_name": 0.83
+     },
+     "corroborated_by": "https://docs.djangoproject.com/"
+    },
+    "latest_version": {
+     "url": "https://www.djangoproject.com/download/",
+     "evidence": "Documentation version: 6.1",
+     "verified": true,
+     "capture_id": "7d152a6c8ab845e3",
+     "corroborated_by": "https://en.wikipedia.org/wiki/Django_(web_framework)",
+     "conflicts": [
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "6.1.1"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "3.0.14"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "2.2.28"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "2.1.15"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "2.0.13"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.11.29"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.10.8"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.9.13"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.8.19"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.7.11"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.6.11"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.5.12"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.4.22"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.3.7"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.2.7"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.1.4"
+      },
+      {
+       "url": "https://www.djangoproject.com/download/",
+       "value": "1.0.4"
+      }
+     ],
+     "kbt_prob": 0.0625,
+     "conflict_note": "Resolved from 18 conflicting sources"
+    },
+    "release_date": {
+     "url": "https://en.wikipedia.org/wiki/Django_(web_framework)",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "77a98222098b402b"
+    }
+   },
+   "created_at": "2026-10-01T03:56:19.331521+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:django web framework",
+   "run_id": "aa0733ec28a7",
+   "entity_key": "django web framework",
+   "fields_sourced": 0.33,
+   "fields": {
+    "framework_name": "Django (web framework)",
+    "latest_version": null,
+    "release_date": null
+   },
+   "provenance": {
+    "framework_name": {
+     "url": "https://en.wikipedia.org/wiki/Django_(web_framework)",
+     "evidence": "Django (web framework)",
+     "verified": true,
+     "capture_id": "7d152a6c8ab845e3",
+     "jev_filters": {
+      "framework_name": 0.81
+     }
+    },
+    "latest_version": {
+     "url": "https://en.wikipedia.org/wiki/Django_(web_framework)",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "7d152a6c8ab845e3"
+    },
+    "release_date": {
+     "url": "https://en.wikipedia.org/wiki/Django_(web_framework)",
+     "evidence": null,
+     "verified": false,
+     "capture_id": "7d152a6c8ab845e3"
+    }
+   },
+   "created_at": "2026-10-01T03:56:44.072764+00:00"
+  }
+ ],
+ "sources": [
+  {
+   "id": "aa0733ec28a7:77a98222098b402b:https://en.wikipedia.org/wiki/Django_(web_framework)",
+   "run_id": "aa0733ec28a7",
+   "url": "https://en.wikipedia.org/wiki/Django_(web_framework)",
+   "domain": "en.wikipedia.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 1,
+   "created_at": "2026-10-01T03:56:24.925313+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:77a98222098b402b:https://en.wikipedia.org/wiki/Django_Unchained",
+   "run_id": "aa0733ec28a7",
+   "url": "https://en.wikipedia.org/wiki/Django_Unchained",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.05)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:29.117863+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:77a98222098b402b:https://www.djangoproject.com/",
+   "run_id": "aa0733ec28a7",
+   "url": "https://www.djangoproject.com/",
+   "domain": "www.djangoproject.com",
+   "status": "ok",
+   "reason": "",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:32.244169+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:77a98222098b402b:https://docs.djangoproject.com/",
+   "run_id": "aa0733ec28a7",
+   "url": "https://docs.djangoproject.com/",
+   "domain": "docs.djangoproject.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.16)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:36.315858+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:77a98222098b402b:https://www.djangoproject.com/download/",
+   "run_id": "aa0733ec28a7",
+   "url": "https://www.djangoproject.com/download/",
+   "domain": "www.djangoproject.com",
+   "status": "ok",
+   "reason": "",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:41.844498+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:77a98222098b402b:https://www.w3schools.com/django/index.php",
+   "run_id": "aa0733ec28a7",
+   "url": "https://www.w3schools.com/django/index.php",
+   "domain": "www.w3schools.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:42.045643+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:7d152a6c8ab845e3:https://en.wikipedia.org/wiki/Django_(web_framework)",
+   "run_id": "aa0733ec28a7",
+   "url": "https://en.wikipedia.org/wiki/Django_(web_framework)",
+   "domain": "en.wikipedia.org",
+   "status": "ok",
+   "reason": "",
+   "records_found": 1,
+   "created_at": "2026-10-01T03:56:50.598162+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:7d152a6c8ab845e3:https://en.wikipedia.org/wiki/Django_Unchained",
+   "run_id": "aa0733ec28a7",
+   "url": "https://en.wikipedia.org/wiki/Django_Unchained",
+   "domain": "en.wikipedia.org",
+   "status": "skipped",
+   "reason": "jev page gate (0.03)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:50.697694+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:7d152a6c8ab845e3:https://www.djangoproject.com/",
+   "run_id": "aa0733ec28a7",
+   "url": "https://www.djangoproject.com/",
+   "domain": "www.djangoproject.com",
+   "status": "ok",
+   "reason": "",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:52.927782+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:7d152a6c8ab845e3:https://docs.djangoproject.com/",
+   "run_id": "aa0733ec28a7",
+   "url": "https://docs.djangoproject.com/",
+   "domain": "docs.djangoproject.com",
+   "status": "skipped",
+   "reason": "jev page gate (0.15)",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:56:54.888065+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:7d152a6c8ab845e3:https://www.djangoproject.com/download/",
+   "run_id": "aa0733ec28a7",
+   "url": "https://www.djangoproject.com/download/",
+   "domain": "www.djangoproject.com",
+   "status": "ok",
+   "reason": "",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:57:01.532839+00:00"
+  },
+  {
+   "id": "aa0733ec28a7:7d152a6c8ab845e3:https://www.w3schools.com/django/index.php",
+   "run_id": "aa0733ec28a7",
+   "url": "https://www.w3schools.com/django/index.php",
+   "domain": "www.w3schools.com",
+   "status": "failed",
+   "reason": "empty page",
+   "records_found": 0,
+   "created_at": "2026-10-01T03:57:01.650168+00:00"
+  }
+ ],
+ "_elapsed_s": 63,
+ "_prompt": "Latest stable versions of popular Python web frameworks (Django, Flask, FastAPI) with version number and release date"
+}
