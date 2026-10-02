@@ -637,6 +637,21 @@ footer em { font-family: var(--serif); font-size: 15px; color: var(--text); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* History + filters */
+.history-list { padding: 4px 20px 12px; max-height: 280px; overflow-y: auto; }
+.history-row { display: flex; align-items: center; gap: 12px; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; cursor: pointer; border-radius: 8px; }
+.history-row:last-child { border-bottom: none; }
+.history-row:hover, .history-row:focus-visible { background: var(--surface-2); outline: none; }
+.history-row.current { background: var(--surface-3); }
+.history-prompt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.history-meta { flex-shrink: 0; color: var(--text-3); font-size: 12px; }
+.history-stop { flex-shrink: 0; font-size: 11px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--err-bd); background: var(--err-bg); color: var(--err); cursor: pointer; }
+.filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 12px 20px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--text-2); }
+.filter-bar input[type="search"] { flex: 1 1 180px; min-width: 140px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--text); font: inherit; }
+.filter-bar label { display: inline-flex; align-items: center; gap: 8px; }
+.filter-count { margin-left: auto; color: var(--text-3); }
+.drawer-raw { color: var(--text-3); font-size: 12px; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -742,8 +757,19 @@ footer em { font-family: var(--serif); font-size: 15px; color: var(--text); }
     <div class="capture-log" id="captureLog" aria-label="Capture activity log"></div>
   </div>
 
+  <!-- Run history -->
+  <div class="card" id="historyCard">
+    <div class="card-head">
+      <h2>Run history</h2>
+      <button class="btn-secondary" onclick="loadHistory()">Refresh</button>
+    </div>
+    <div class="history-list" id="historyList" role="list">
+      <div class="source-row none">No runs yet.</div>
+    </div>
+  </div>
+
   <!-- Results -->
-  <div class="card">
+  <div class="card" id="resultsCard">
     <div class="card-head">
       <h2 id="resultsTitle">Results</h2>
       <div class="legend-wrap">
@@ -752,6 +778,15 @@ footer em { font-family: var(--serif); font-size: 15px; color: var(--text); }
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Export CSV
         </a>
       </div>
+    </div>
+    <div class="filter-bar" id="filterBar" style="display:none">
+      <input id="filterText" type="search" placeholder="Search rows&hellip;" aria-label="Search results" oninput="applyFilters()">
+      <label>Min sourced
+        <input id="filterMin" type="range" min="0" max="100" step="10" value="0" aria-label="Minimum sourced percentage" oninput="applyFilters()">
+        <span id="filterMinVal">0%</span>
+      </label>
+      <label><input id="filterConflicts" type="checkbox" onchange="applyFilters()"> Conflicts only</label>
+      <span class="filter-count" id="filterCount"></span>
     </div>
     <div class="table-scroll" id="tableWrap">
       <div class="empty">
@@ -852,6 +887,7 @@ function handleRunBtn() {
 }
 
 function _setRunMode() {
+  if (typeof loadHistory === "function") loadHistory();
   const btn = document.getElementById("runBtn");
   btn.textContent = "Run Scout";
   btn.setAttribute("aria-label", "Run Scout");
@@ -948,7 +984,9 @@ async function startRun() {
     document.getElementById("captureLog").innerHTML = "";
     _records = []; _fields = [];
     _setStopMode();
+    resetFilters();
     connectSSE(currentRunId);
+    loadHistory();
     document.getElementById("statusCard").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
     showError("Could not start run: " + (err.message || err));
@@ -986,6 +1024,7 @@ function handleEvent(ev, runId) {
   switch (ev.type) {
     case "status_change":
       setStatus(ev.status);
+      loadHistory();
       if (ev.status === "done" || ev.status === "failed" || ev.status === "cancelled") {
         _setRunMode();
         fetchAndRender(runId);
@@ -1149,12 +1188,23 @@ function renderTable(fields, records) {
     return;
   }
 
+  document.getElementById("filterBar").style.display = "flex";
+  const shown = records.map((rec, ri) => ri).filter(ri => matchesFilters(records[ri]));
+  document.getElementById("filterCount").textContent =
+    shown.length === records.length ? `${records.length} rows` : `${shown.length} of ${records.length} rows`;
+  if (!shown.length) {
+    wrap.innerHTML = `<div class="empty">${EMPTY_ICON}<h3>No rows match</h3><p>Loosen the search or filters above.</p></div>`;
+    document.getElementById("legendBadges").innerHTML = "";
+    return;
+  }
+
   let conflictCount = 0, unverifiedCount = 0;
   let html = `<table><thead><tr>`;
   for (const f of fields) html += `<th>${escHtml(f.name)}</th>`;
   html += `<th>Sourced</th></tr></thead><tbody>`;
 
-  records.forEach((rec, ri) => {
+  shown.forEach(ri => {
+    const rec = records[ri];
     html += "<tr>";
     for (const f of fields) {
       const val          = rec.fields[f.name];
@@ -1201,6 +1251,93 @@ function renderSources(sources) {
   }).join("");
 }
 
+// -- Results search / filter
+function matchesFilters(rec) {
+  const q    = document.getElementById("filterText").value.trim().toLowerCase();
+  const min  = Number(document.getElementById("filterMin").value) / 100;
+  const only = document.getElementById("filterConflicts").checked;
+  if (min > 0) {
+    const sourced = rec.fields_sourced != null ? rec.fields_sourced : (rec.confidence || 0);
+    if (sourced + 1e-9 < min) return false;
+  }
+  if (only && !Object.values(rec.provenance || {}).some(p => p && p.conflicts && p.conflicts.length)) return false;
+  if (q) {
+    const hay = [rec.entity_key, ...Object.values(rec.fields || {})]
+      .filter(v => v != null).join(" ").toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  return true;
+}
+
+function applyFilters() {
+  document.getElementById("filterMinVal").textContent = document.getElementById("filterMin").value + "%";
+  renderTable(_fields, _records);
+}
+
+function resetFilters() {
+  document.getElementById("filterText").value = "";
+  document.getElementById("filterMin").value = 0;
+  document.getElementById("filterMinVal").textContent = "0%";
+  document.getElementById("filterConflicts").checked = false;
+}
+
+// -- Run history
+const isActiveStatus = s => !["done", "failed", "cancelled"].includes(s);
+
+async function loadHistory() {
+  const el = document.getElementById("historyList");
+  try {
+    const res = await fetch(`${API}/runs`);
+    const runs = await res.json();
+    if (!runs.length) { el.innerHTML = `<div class="source-row none">No runs yet.</div>`; return; }
+    el.innerHTML = runs.map(r => {
+      const cls = r.status === "done" ? "src-ok" : isActiveStatus(r.status) ? "src-skip" : "src-fail";
+      const when = r.created_at ? new Date(r.created_at).toLocaleString() : "";
+      const stop = isActiveStatus(r.status)
+        ? `<button class="history-stop" onclick="stopHistoryRun('${escHtml(r.id)}', event)">Stop</button>` : "";
+      return `<div class="history-row${r.id === currentRunId ? " current" : ""}" role="listitem" tabindex="0"
+          onclick="openRun('${escHtml(r.id)}')" onkeydown="if(event.key==='Enter')openRun('${escHtml(r.id)}')"
+          title="${escHtml(r.error || r.prompt)}">
+        <span class="src-status ${cls}">${escHtml(r.status)}</span>
+        <span class="history-prompt">${escHtml(r.prompt)}</span>
+        <span class="history-meta">${r.n_records != null ? r.n_records + " rows · " : ""}${escHtml(when)}</span>
+        ${stop}
+      </div>`;
+    }).join("");
+  } catch (e) {
+    el.innerHTML = `<div class="source-row none">Could not load history.</div>`;
+  }
+}
+
+async function stopHistoryRun(id, ev) {
+  ev.stopPropagation();
+  try { await fetch(`${API}/runs/${id}`, { method: "DELETE" }); } catch (e) { /* ignore */ }
+  loadHistory();
+}
+
+async function openRun(id) {
+  if (eventSource) { eventSource.close(); eventSource = null; }
+  const res = await fetch(`${API}/runs/${id}`);
+  if (!res.ok) { showError("That run no longer exists."); loadHistory(); return; }
+  const run = await res.json();
+  currentRunId = id;
+  _records = []; _fields = [];
+  resetFilters();
+  const errAlert = document.getElementById("errorAlert");
+  if (errAlert) errAlert.style.display = "none";
+  document.getElementById("prompt").value = run.prompt || "";
+  document.getElementById("exportLink").href = `${API}/runs/${id}/export.csv`;
+  document.getElementById("auditPanel").style.display = "block";
+  document.getElementById("statusCard").classList.add("visible");
+  renderRun(run);
+  if (run.status === "failed" && run.error) showError(run.error);
+  if (isActiveStatus(run.status)) { _setStopMode(); connectSSE(id); } else { _setRunMode(); }
+  document.getElementById("resultsCard").scrollIntoView({ behavior: "smooth", block: "start" });
+  loadHistory();
+}
+
+loadHistory();
+
 // -- Drawer
 function openDrawer(ri, fieldName) {
   const rec       = _records[ri];
@@ -1218,6 +1355,7 @@ function openDrawer(ri, fieldName) {
 
   let html = `
     <div class="drawer-value">${val != null ? escHtml(String(val)) : DASH}</div>
+    ${prov.raw_value != null ? `<div class="drawer-raw">Normalised from “${escHtml(String(prov.raw_value))}” on the page</div>` : ""}
     <div class="drawer-badges">${badges}</div>
     <div class="drawer-label">Evidence</div>
     <div class="drawer-quote-block">${prov.evidence ? `“${escHtml(prov.evidence)}”` : "No verified evidence found for this cell."}</div>

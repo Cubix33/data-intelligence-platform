@@ -40,6 +40,7 @@ from collections import defaultdict
 from urllib.parse import urlparse
 
 from . import db
+from .normalize import normalize_number
 
 logger = logging.getLogger("scout.truth")
 
@@ -223,8 +224,12 @@ def resolve_run_conflicts(run_id: str) -> dict[str, int]:
             winning_url   = winner.get("source_url")
             winning_prob  = winner.get("kbt_prob", 0.0)
 
-            if winning_value and winning_value != fields.get(field_name):
+            prior_value = fields.get(field_name)
+            if isinstance(prior_value, (int, float)) and not isinstance(prior_value, bool):
+                winning_value = normalize_number(winning_value)  # claims store text; keep numbers numeric
+            if winning_value and winning_value != prior_value:
                 fields[field_name] = winning_value
+                provenance[field_name].pop("raw_value", None)  # described the replaced value
                 provenance[field_name]["url"]           = winning_url
                 provenance[field_name]["kbt_prob"]      = winning_prob
                 provenance[field_name]["conflict_note"] = (
