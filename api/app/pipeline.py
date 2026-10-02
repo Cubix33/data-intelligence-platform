@@ -23,6 +23,7 @@ from urllib.parse import urlparse
 from . import compliance, config, db, fetcher, llm
 from .coverage import chao2, bootstrap_ci, marginal_yield
 from .entity_resolution import match_existing_key, resolve_entity_key
+from .normalize import normalize_value, single_year
 from . import verifier as verifier_mod
 from . import truth as truth_mod
 from . import jev as jev_mod
@@ -254,6 +255,9 @@ def run_pipeline(run_id: str, prompt: str) -> None:
 
     primary_field = dataspec.fields[0].name
     field_types = {f.name: f.type for f in dataspec.fields}
+    # A date written without a year ("Jan 20") borrows the year from the spec's filters
+    # ("release_year:2025") only when they name exactly one year.
+    filter_year = single_year(" ".join(dataspec.filters))
 
     # capture_history: entity_key -> set of capture_ids that found it (for Chao2)
     capture_history: dict[str, set[str]] = {}
@@ -431,13 +435,19 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                         if verified:
                             verified_count += 1
 
-                        fields[field.name] = value
+                        # Normalise only after verification, which needs the page's own wording.
+                        year_hint = single_year(ev_text) or filter_year
+                        norm_value = normalize_value(value, field_types.get(field.name, "string"), year_hint)
+
+                        fields[field.name] = norm_value
                         provenance[field.name] = {
                             "url":        url,
                             "evidence":   ev_text if verified else None,
                             "verified":   verified,
                             "capture_id": capture_id,
                         }
+                        if norm_value != value:
+                            provenance[field.name]["raw_value"] = value
 
                     primary_value = fields.get(primary_field)
                     if not primary_value:
@@ -504,7 +514,7 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                                     "entity": str(b["primary_value"]),
                                     "field": fname,
                                     "field_description": field_desc.get(fname, fname),
-                                    "value": str(b["fields"][fname]),
+                                    "value": str(b["provenance"][fname].get("raw_value", b["fields"][fname])),
                                     "quote": ev,
                                 }
                                 for _, b, fname, ev in scoreable
@@ -522,7 +532,7 @@ def run_pipeline(run_id: str, prompt: str) -> None:
                             by_field.setdefault(fname, []).append((i, b, ev))
                         for fname, items in by_field.items():
                             field_description = next(f.description for f in dataspec.fields if f.name == fname)
-                            claims_batch = [{"value_raw": b["fields"][fname], "quote": ev} for i, b, ev in items]
+                            claims_batch = [{"value_raw": b["provenance"][fname].get("raw_value", b["fields"][fname]), "quote": ev} for i, b, ev in items]
                             try:
                                 scores = verifier_mod.score_claims_batch(
                                     claims_batch, entity_name="", field_description=field_description,

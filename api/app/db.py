@@ -153,7 +153,9 @@ def get_run(run_id: str) -> dict | None:
 def list_runs() -> list[dict]:
     conn = get_conn()
     rows = conn.execute(
-        "SELECT id, prompt, status, created_at, finished_at FROM runs ORDER BY created_at DESC"
+        "SELECT r.id, r.prompt, r.status, r.error, r.created_at, r.finished_at, "
+        "(SELECT COUNT(*) FROM records rec WHERE rec.run_id = r.id) AS n_records "
+        "FROM runs r ORDER BY r.created_at DESC"
     ).fetchall()
     return [dict(r) for r in rows]
 
